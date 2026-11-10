@@ -1,0 +1,217 @@
+# Builds logix-core for every platform and publishes it as a GitHub
+# pre-release tagged with the date (yyyy-mm-dd). A pre-release with the
+# same tag is replaced, so the day's pre-release is from its latest commit;
+# a stable release with that tag is never touched (the run fails instead).
+#
+# Runs on every push to main and manually, not daily: logix-core changes
+# only when pins.json does. Old pre-releases are kept, since engine
+# releases pin them by tag.
+#
+# The steps use the shared Open Logix actions in openlogix/.github.
+
+name: build-pre-release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-pre-release
+  cancel-in-progress: true
+
+env:
+  RELEASE_TAG: ""
+  PACKAGE_TAG: ""
+  REPO: ""
+  REPO_BRANCH: ""
+  REPO_COMMIT: ""
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      package-tag: ${{ steps.tags.outputs.package-tag }}
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v7
+
+      - name: Get release and package tags
+        uses: openlogix/.github/actions/get-release-and-package-tags@v1
+        with:
+          release-tag-var: RELEASE_TAG
+          package-tag-var: PACKAGE_TAG
+
+      - name: Early check for no conflicting release
+        uses: openlogix/.github/actions/ensure-no-conflicting-release@v1
+        with:
+          release-tag: ${{ env.RELEASE_TAG }}
+          just-check: true
+
+      - name: Get repo info
+        uses: openlogix/.github/actions/get-repo-info@v1
+        with:
+          repo-dir: .
+          repo-var: REPO
+          branch-var: REPO_BRANCH
+          commit-var: REPO_COMMIT
+
+      - name: Pass the package tag on
+        id: tags
+        run: echo "package-tag=$PACKAGE_TAG" >> "$GITHUB_OUTPUT"
+
+      # The build details live here, beside the packages, not inside them:
+      # the packages stay reproducible.
+      - name: Create build info
+        run: |
+          cat > BUILD-INFO.json <<EOF
+          {
+            "package-name": "logix-core",
+            "description": "The FPGA tools Logix Engine downloads and runs. Not for use on its own; its content may change at any time.",
+            "repo": "${REPO}",
+            "repo-branch": "${REPO_BRANCH}",
+            "repo-commit": "${REPO_COMMIT}",
+            "release-tag": "$RELEASE_TAG",
+            "package-tag": "$PACKAGE_TAG",
+            "build-time": "$(date +'%Y-%m-%d %H:%M:%S %Z')",
+            "builder-workflow": "${{ github.workflow }}",
+            "workflow-run-id": "${{ github.run_id }}",
+            "workflow-run-number": "${{ github.run_number }}"
+          }
+          EOF
+          cat -n BUILD-INFO.json
+
+      - name: Format build info json file in-place
+        uses: openlogix/.github/actions/format-json-file@v1
+        with:
+          json-file: BUILD-INFO.json
+
+      - name: Upload the build info artifact
+        uses: actions/upload-artifact@v7
+        with:
+          if-no-files-found: error
+          name: build-info
+          path: BUILD-INFO.json
+
+  # One job per platform. Packing needs no platform of its own: the files
+  # are only downloaded, unpacked and packed again.
+  build:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        platform: [darwin-arm64, linux-x86-64, windows-x86-64]
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Build logix-core for ${{ matrix.platform }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/build.py \
+              --platform ${{ matrix.platform }} \
+              --package-tag ${{ needs.prepare.outputs.package-tag }} \
+              --out _out --work "$RUNNER_TEMP/work"
+          ls -l _out
+
+      - name: Upload the package
+        uses: actions/upload-artifact@v7
+        with:
+          if-no-files-found: error
+          name: logix-core-${{ matrix.platform }}
+          path: _out/*
+          compression-level: 0
+
+  pre-release:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the artifacts
+        uses: actions/download-artifact@v8
+        with:
+          merge-multiple: true
+          path: _artifacts
+
+      - name: Move build info
+        run: |
+          find _artifacts
+          mv _artifacts/BUILD-INFO.json .
+
+      - name: Set env vars from JSON
+        uses: openlogix/.github/actions/set-env-from-json@v1
+        with:
+          json-file: BUILD-INFO.json
+          mappings: >-
+            REPO           repo
+            REPO_COMMIT    repo-commit
+            RELEASE_TAG    release-tag
+            PACKAGE_TAG    package-tag
+
+      - name: Checksums
+        run: |
+          cd _artifacts && sha256sum logix-core-*.tgz | tee ../SHA256SUMS
+
+      - name: Convert json build info to text
+        uses: openlogix/.github/actions/json-to-text@v1
+        with:
+          input-json: BUILD-INFO.json
+          output-text: build-info.txt
+
+      - name: Prepare release text
+        run: |
+          cat > RELEASE-BODY.txt <<EOF
+
+          **logix-core: the FPGA tools Logix Engine downloads and runs.**
+
+          > [!IMPORTANT]
+          > **Not for use on its own.** These packages are meant only for
+          > [Logix Engine](https://www.openlogix.org/engine/), which downloads
+          > them itself. Their content and layout may change at any time.
+
+          Each package holds the pinned upstream releases, unchanged, one
+          folder each (see \`logix-core.json\` inside, and
+          [pins.json](https://github.com/${REPO}/blob/${REPO_COMMIT}/pins.json)).
+
+          ### Checksums
+
+          \`\`\`
+          $(cat SHA256SUMS)
+          \`\`\`
+
+          ### Build info
+
+          \`\`\`
+          $(cat build-info.txt)
+          \`\`\`
+          EOF
+          cat -n RELEASE-BODY.txt
+
+      - name: Ensure no conflicting release
+        uses: openlogix/.github/actions/ensure-no-conflicting-release@v1
+        with:
+          release-tag: ${{ env.RELEASE_TAG }}
+
+      - name: Create GitHub pre-release
+        uses: openlogix/.github/actions/create-pre-release@v1
+        with:
+          release_tag: ${{ env.RELEASE_TAG }}
+          body_path: RELEASE-BODY.txt
+          files: |
+            _artifacts/logix-core-darwin-arm64-${{ env.PACKAGE_TAG }}.tgz
+            _artifacts/logix-core-darwin-arm64.json
+            _artifacts/logix-core-linux-x86-64-${{ env.PACKAGE_TAG }}.tgz
+            _artifacts/logix-core-linux-x86-64.json
+            _artifacts/logix-core-windows-x86-64-${{ env.PACKAGE_TAG }}.tgz
+            _artifacts/logix-core-windows-x86-64.json
+            SHA256SUMS
+            BUILD-INFO.json

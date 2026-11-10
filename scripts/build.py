@@ -1,0 +1,208 @@
+#!/usr/bin/env python3
+"""Builds logix-core for one platform (docs/design.md).
+
+    scripts/build.py --platform darwin-arm64 --out _out [--work _work]
+
+Reads pins.json, downloads each pinned upstream file for the platform
+(GitHub releases through the `gh` CLI, other files by URL), unpacks each
+into its own subfolder unchanged (only a single top-level folder is
+stripped), writes logix-core.json (what's inside and how to run it), checks that the
+programs Logix Engine runs are there, and packs it all as a reproducible
+.tgz: fixed file order, times and owners, so the same pins give the same
+bytes and the same SHA-256.
+
+Not a product: logix-core is meant only for Logix Engine, which downloads
+and runs it, and its content may change at any time.
+"""
+
+import argparse
+import gzip
+import os
+import hashlib
+import json
+import shutil
+import subprocess
+import sys
+import tarfile
+import urllib.request
+import zipfile
+from pathlib import Path
+
+PLATFORMS = ("darwin-arm64", "linux-x86-64", "windows-x86-64")
+
+# The programs Logix Engine runs, by component (relative to the
+# component's folder). A core without them isn't published.
+REQUIRED = {
+    "unix": {
+        "oss-cad-suite": [
+            "bin/yosys",
+            "bin/nextpnr-ice40",
+            "bin/nextpnr-ecp5",
+            "bin/nextpnr-himbaechel",
+            "bin/iverilog",
+            "bin/vvp",
+            "bin/openFPGALoader",
+            "bin/iceprog",
+            "bin/dot",
+        ],
+        "openxc7": ["bin/nextpnr-xilinx", "bin/fasm2frames", "bin/xc7frames2bit"],
+        "verible": ["bin/verible-verilog-format", "bin/verible-verilog-ls"],
+    },
+    "windows": {
+        "oss-cad-suite": [
+            "bin/yosys.exe",
+            "bin/nextpnr-ice40.exe",
+            "bin/nextpnr-ecp5.exe",
+            "bin/nextpnr-himbaechel.exe",
+            "bin/iverilog.exe",
+            "bin/vvp.exe",
+            "bin/openFPGALoader.exe",
+        ],
+        "openxc7": ["bin/nextpnr-xilinx.exe", "bin/fasm2frames.cmd", "bin/xc7frames2bit.exe"],
+        "verible": ["verible-verilog-format.exe", "verible-verilog-ls.exe"],
+        "graphviz": ["bin/dot.exe"],
+    },
+}
+
+NOTE = (
+    "logix-core is meant only for Logix Engine, which downloads it and runs its tools. "
+    "It isn't for use on its own, and its content and layout may change at any time."
+)
+
+
+def run(cmd, **kw):
+    print("$", " ".join(str(c) for c in cmd), flush=True)
+    subprocess.run(cmd, check=True, **kw)
+
+
+def sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def download(comp: dict, platform: str, dest: Path) -> Path:
+    name = comp["files"][platform]
+    target = dest / name
+    if target.exists():
+        return target
+    dest.mkdir(parents=True, exist_ok=True)
+    if "github" in comp:
+        g = comp["github"]
+        run(["gh", "release", "download", g["release"], "--repo", g["repo"],
+             "--pattern", name, "--dir", str(dest)])
+    else:
+        url = comp["url"][platform]
+        print("$ download", url, flush=True)
+        with urllib.request.urlopen(url) as r, target.open("wb") as f:
+            shutil.copyfileobj(r, f)
+    return target
+
+
+def unpack(archive: Path, dest: Path) -> None:
+    """Unpacks `archive` into `dest`, unchanged, stripping a single
+    top-level folder when the archive has one and nothing else."""
+    tmp = dest.with_name(dest.name + ".unpack")
+    shutil.rmtree(tmp, ignore_errors=True)
+    tmp.mkdir(parents=True)
+    if archive.name.endswith(".zip"):
+        with zipfile.ZipFile(archive) as z:
+            z.extractall(tmp)
+    else:
+        with tarfile.open(archive) as t:
+            t.extractall(tmp, filter="tar")
+    entries = list(tmp.iterdir())
+    root = entries[0] if len(entries) == 1 and entries[0].is_dir() and not entries[0].is_symlink() else tmp
+    shutil.rmtree(dest, ignore_errors=True)
+    if root is tmp:
+        tmp.rename(dest)
+    else:
+        root.rename(dest)
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def check_required(core: Path, platform: str) -> None:
+    kind = "windows" if platform.startswith("windows") else "unix"
+    missing = [f"{c}/{p}" for c, paths in REQUIRED[kind].items() for p in paths
+               if not (core / c / p).exists()]
+    if missing:
+        sys.exit("Missing in logix-core: " + ", ".join(missing))
+
+
+def pack(core: Path, out: Path) -> None:
+    """A reproducible .tgz of the contents of `core` (no top folder): sorted
+    entries, time 0, owner 0, gzip without a name or time."""
+    paths = []
+    for root, dirs, files in os.walk(core, followlinks=False):
+        for name in dirs + files:
+            paths.append(Path(root) / name)
+    paths.sort(key=lambda p: p.relative_to(core).as_posix())
+
+    def clean(info: tarfile.TarInfo) -> tarfile.TarInfo:
+        info.mtime = 0
+        info.uid = info.gid = 0
+        info.uname = info.gname = ""
+        return info
+
+    with out.open("wb") as raw, gzip.GzipFile(filename="", mode="wb", fileobj=raw, mtime=0,
+                                              compresslevel=9) as gz:
+        with tarfile.open(fileobj=gz, mode="w", format=tarfile.PAX_FORMAT) as tar:
+            for p in paths:
+                tar.add(p, arcname=p.relative_to(core).as_posix(), recursive=False, filter=clean)
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--platform", required=True, choices=PLATFORMS)
+    ap.add_argument("--out", required=True, help="folder for the .tgz and its .json")
+    ap.add_argument("--work", default="_work", help="scratch folder for downloads")
+    ap.add_argument("--package-tag", default="", help="yyyymmdd for the file name")
+    args = ap.parse_args()
+
+    repo = Path(__file__).resolve().parent.parent
+    pins = json.loads((repo / "pins.json").read_text())
+    work = Path(args.work).resolve()
+    core = work / args.platform / "logix-core"
+    shutil.rmtree(core, ignore_errors=True)
+    core.mkdir(parents=True)
+
+    meta = {"format": 1, "note": NOTE, "platform": args.platform, "components": {}}
+    for name, comp in pins["components"].items():
+        if args.platform not in comp["files"]:
+            continue
+        archive = download(comp, args.platform, work / "downloads" / args.platform)
+        unpack(archive, core / name)
+        source = {"upstream": comp["upstream"], "file": archive.name, "sha256": sha256(archive)}
+        if "github" in comp:
+            source["repo"] = comp["github"]["repo"]
+            source["release"] = comp["github"]["release"]
+        else:
+            source["url"] = comp["url"][args.platform]
+            source["version"] = comp["version"]
+        meta["components"][name] = {
+            "description": comp["description"],
+            "folder": name,
+            "source": source,
+            # How Logix Engine runs the component's programs: these
+            # folders, relative to the core, go on PATH.
+            "run": {"path": [f"{name}/{p}" if p != "." else name
+                             for p in comp["path"][args.platform]], "env": {}},
+        }
+    check_required(core, args.platform)
+    (core / "logix-core.json").write_text(json.dumps(meta, indent=2) + "\n")
+
+    out = Path(args.out).resolve()
+    out.mkdir(parents=True, exist_ok=True)
+    tag = f"-{args.package_tag}" if args.package_tag else ""
+    tgz = out / f"logix-core-{args.platform}{tag}.tgz"
+    pack(core, tgz)
+    info = {"file": tgz.name, "platform": args.platform, "size": tgz.stat().st_size,
+            "sha256": sha256(tgz), "contents": meta}
+    (out / f"logix-core-{args.platform}.json").write_text(json.dumps(info, indent=2) + "\n")
+    print(f"{tgz.name}: {info['size']} bytes, sha256 {info['sha256']}")
+
+
+if __name__ == "__main__":
+    main()

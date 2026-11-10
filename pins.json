@@ -1,0 +1,95 @@
+{
+  "$comment": "What logix-core is made of: each tool's pinned upstream release, per platform. Changed only by pull request (docs/design.md, Processes). scripts/build.py reads it. Boards and FPGAs aren't here: they're the logix-catalog package.",
+  "components": {
+    "oss-cad-suite": {
+      "description": "YosysHQ OSS CAD Suite: yosys, nextpnr, icestorm, Project Trellis, Apycula, Icarus Verilog, Verilator, GTKWave, openFPGALoader and more",
+      "upstream": "https://github.com/YosysHQ/oss-cad-suite-build",
+      "github": {
+        "repo": "YosysHQ/oss-cad-suite-build",
+        "release": "2026-11-04"
+      },
+      "files": {
+        "darwin-arm64": "oss-cad-suite-darwin-arm64-20261104.tgz",
+        "linux-x86-64": "oss-cad-suite-linux-x64-20261104.tgz",
+        "windows-x86-64": "oss-cad-suite-windows-x64-20261104.tgz"
+      },
+      "path": {
+        "darwin-arm64": [
+          "bin"
+        ],
+        "linux-x86-64": [
+          "bin"
+        ],
+        "windows-x86-64": [
+          "bin",
+          "lib"
+        ]
+      }
+    },
+    "openxc7": {
+      "description": "openXC7: nextpnr-xilinx, the Project X-Ray tools and database, for Xilinx 7-series FPGAs",
+      "upstream": "https://github.com/cavearr/toolchain-openxc7-releases",
+      "github": {
+        "repo": "cavearr/toolchain-openxc7-releases",
+        "release": "2026-11-05"
+      },
+      "files": {
+        "darwin-arm64": "openxc7-toolchain-darwin-arm64-20261105.tgz",
+        "linux-x86-64": "openxc7-toolchain-linux-x86-64-20261105.tgz",
+        "windows-x86-64": "openxc7-toolchain-windows-amd64-20261105.tgz"
+      },
+      "path": {
+        "darwin-arm64": [
+          "bin"
+        ],
+        "linux-x86-64": [
+          "bin"
+        ],
+        "windows-x86-64": [
+          "bin",
+          "lib"
+        ]
+      }
+    },
+    "verible": {
+      "description": "CHIPS Alliance Verible: the Verilog formatter and language server",
+      "upstream": "https://github.com/chipsalliance/verible",
+      "github": {
+        "repo": "chipsalliance/verible",
+        "release": "v0.0-4294-gc1d8f5e8"
+      },
+      "files": {
+        "darwin-arm64": "verible-v0.0-4294-gc1d8f5e8-macOS.tar.gz",
+        "linux-x86-64": "verible-v0.0-4294-gc1d8f5e8-linux-static-x86_64.tar.gz",
+        "windows-x86-64": "verible-v0.0-4294-gc1d8f5e8-win64.zip"
+      },
+      "path": {
+        "darwin-arm64": [
+          "bin"
+        ],
+        "linux-x86-64": [
+          "bin"
+        ],
+        "windows-x86-64": [
+          "."
+        ]
+      }
+    },
+    "graphviz": {
+      "description": "Graphviz, for the design diagram's dot (macOS and Linux get it in oss-cad-suite)",
+      "upstream": "https://graphviz.org",
+      "url": {
+        "windows-x86-64": "https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/12.1.2/windows_10_cmake_Release_Graphviz-12.1.2-win64.zip"
+      },
+      "version": "12.1.2",
+      "files": {
+        "windows-x86-64": "windows_10_cmake_Release_Graphviz-12.1.2-win64.zip"
+      },
+      "path": {
+        "windows-x86-64": [
+          "bin"
+        ]
+      }
+    }
+  }
+}
