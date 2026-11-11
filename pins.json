@@ -1,5 +1,5 @@
 {
-  "$comment": "What logix-core is made of: each tool's pinned upstream release, per platform. Changed only by pull request (docs/design.md, Processes). scripts/build.py reads it. Boards aren't here: they're the logix-catalog package. The list of FPGAs the tools can build is generated from their databases (scripts/fpgas.py).",
+  "$comment": "What logix-core is made of: each tool's pinned upstream release: files, URL and run folders per platform, or one value for every platform (elkjs). Changed only by pull request (docs/design.md, Processes). scripts/build.py reads it. Boards aren't here: they're the logix-catalog package. The list of FPGAs the tools can build is generated from their databases (scripts/fpgas.py).",
   "components": {
     "oss-cad-suite": {
       "description": "YosysHQ OSS CAD Suite: yosys, nextpnr, icestorm, Project Trellis, Apycula, Icarus Verilog, Verilator, GTKWave, openFPGALoader and more",
@@ -78,22 +78,10 @@
     "elkjs": {
       "description": "ELK (the Eclipse Layout Kernel) for JavaScript: lays out Logix Engine's design diagrams, run by the engine itself",
       "upstream": "https://github.com/kieler/elkjs",
-      "url": {
-        "darwin-arm64": "https://registry.npmjs.org/elkjs/-/elkjs-0.12.1.tgz",
-        "linux-x86-64": "https://registry.npmjs.org/elkjs/-/elkjs-0.12.1.tgz",
-        "windows-x86-64": "https://registry.npmjs.org/elkjs/-/elkjs-0.12.1.tgz"
-      },
+      "url": "https://registry.npmjs.org/elkjs/-/elkjs-0.12.1.tgz",
       "version": "0.12.1",
-      "files": {
-        "darwin-arm64": "elkjs-0.12.1.tgz",
-        "linux-x86-64": "elkjs-0.12.1.tgz",
-        "windows-x86-64": "elkjs-0.12.1.tgz"
-      },
-      "path": {
-        "darwin-arm64": [],
-        "linux-x86-64": [],
-        "windows-x86-64": []
-      }
+      "files": "elkjs-0.12.1.tgz",
+      "path": []
     }
   }
 }

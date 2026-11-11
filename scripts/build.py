@@ -87,8 +87,19 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
+def for_platform(comp: dict, key: str, platform: str):
+    """A component's value for a platform: per platform (a map by platform)
+    or the same for all (such as elkjs, which is JavaScript)."""
+    value = comp[key]
+    if isinstance(value, dict):
+        if platform not in value:
+            raise SystemExit(f"pins.json: {key} has no {platform} entry")
+        return value[platform]
+    return value
+
+
 def download(comp: dict, platform: str, dest: Path) -> Path:
-    name = comp["files"][platform]
+    name = for_platform(comp, "files", platform)
     target = dest / name
     if target.exists():
         return target
@@ -98,7 +109,7 @@ def download(comp: dict, platform: str, dest: Path) -> Path:
         run(["gh", "release", "download", g["release"], "--repo", g["repo"],
              "--pattern", name, "--dir", str(dest)])
     else:
-        url = comp["url"][platform]
+        url = for_platform(comp, "url", platform)
         print("$ download", url, flush=True)
         with urllib.request.urlopen(url) as r, target.open("wb") as f:
             shutil.copyfileobj(r, f)
@@ -174,8 +185,6 @@ def main() -> None:
 
     meta = {"format": 1, "note": NOTE, "platform": args.platform, "components": {}}
     for name, comp in pins["components"].items():
-        if args.platform not in comp["files"]:
-            continue
         archive = download(comp, args.platform, work / "downloads" / args.platform)
         unpack(archive, core / name)
         source = {"upstream": comp["upstream"], "file": archive.name, "sha256": sha256(archive)}
@@ -183,7 +192,7 @@ def main() -> None:
             source["repo"] = comp["github"]["repo"]
             source["release"] = comp["github"]["release"]
         else:
-            source["url"] = comp["url"][args.platform]
+            source["url"] = for_platform(comp, "url", args.platform)
             source["version"] = comp["version"]
         meta["components"][name] = {
             "description": comp["description"],
@@ -192,7 +201,7 @@ def main() -> None:
             # How Logix Engine runs the component's programs: these
             # folders, relative to the core, go on PATH.
             "run": {"path": [f"{name}/{p}" if p != "." else name
-                             for p in comp["path"][args.platform]], "env": {}},
+                             for p in for_platform(comp, "path", args.platform)], "env": {}},
         }
     check_required(core, args.platform)
     # What the tools can build, per toolchain, in their own terms: Logix
