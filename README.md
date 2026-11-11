@@ -26,7 +26,7 @@ folder of its own:
 | `oss-cad-suite/` | [YosysHQ OSS CAD Suite](https://github.com/YosysHQ/oss-cad-suite-build): yosys, nextpnr, icestorm, Project Trellis, Apycula, Icarus Verilog, Verilator, GTKWave, openFPGALoader and more | macOS (Apple Silicon), Linux x64, Windows x64 |
 | `openxc7/` | [openXC7](https://github.com/cavearr/toolchain-openxc7-releases): nextpnr-xilinx and the Project X-Ray tools and database | macOS (Apple Silicon), Linux x64, Windows x64 |
 | `verible/` | [CHIPS Alliance Verible](https://github.com/chipsalliance/verible): the Verilog formatter and language server | macOS (Apple Silicon), Linux x64, Windows x64 |
-| `graphviz/` | [Graphviz](https://graphviz.org), for `dot` | Windows x64 (macOS and Linux get it in `oss-cad-suite/`) |
+| `elkjs/` | [ELK for JavaScript](https://github.com/kieler/elkjs) (the Eclipse Layout Kernel), which lays out Logix Engine's design diagrams; the engine runs it itself | macOS (Apple Silicon), Linux x64, Windows x64 |
 
 `logix-core.json`, at the package's top, lists each folder's upstream file,
 version and SHA-256, how Logix Engine runs it, and the FPGAs the tools can

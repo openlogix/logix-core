@@ -54,7 +54,7 @@ and variables for them.
 | `openxc7` | nextpnr-xilinx, `fasm2frames`, `xc7frames2bit`, the Project X-Ray database, the chip databases | `cavearr/toolchain-openxc7-releases`, release 2026-11-05 | `.tgz` (124 MB) | `.tgz` | `.tgz` | `openxc7/` |
 | `verible` | the Verible tools | chipsalliance `verible`, release v0.0-4294-gc1d8f5e8 | `.tar.gz` (8 MB) | static `.tar.gz` | `.zip` | `verible/` |
 | `drivers` | `zadig.exe` (+ `zadig.ini`), `serial_install.exe`, `ftdi_eeprom.exe` | committed as files in `fpgawars/tools-drivers` | none | none | yes | Milestone 3 |
-| `graphviz` | Graphviz's `dot` | Graphviz 12.1.2, Windows build | none | none | yes | `graphviz/` (Windows) |
+| `graphviz` | Graphviz's `dot` | Graphviz 12.1.2, Windows build | none | none | yes | not used: Logix Engine lays out and draws its diagrams itself, with `elkjs/` |
 
 Apio's tool packages are rebuilt every day, whether or not anything
 upstream changed, and its remote config pins the dated release each Apio
@@ -71,7 +71,7 @@ version uses.
 | Build, Xilinx 7-series | `yosys`, `nextpnr-xilinx`, `fasm2frames` (Python), `xc7frames2bit`, the Project X-Ray database | `oss-cad-suite/` + `openxc7/` |
 | Test and simulate | `iverilog`, `vvp`, `gtkwave` | `oss-cad-suite/` |
 | Format | `verible-verilog-format` | `verible/` |
-| Diagram | `yosys` and `dot` | `oss-cad-suite/` (macOS, Linux), `graphviz/` (Windows) |
+| Diagram | `yosys`, then ELK's layout (`elk.bundled.js`), which the engine runs itself | `oss-cad-suite/` + `elkjs/` |
 | Program the board | `openFPGALoader`, `iceprog`, `dfu-util`, `icesprog` | `oss-cad-suite/` |
 | Live errors in Logix IDE | `verible-verilog-ls` | `verible/` |
 | Windows drivers (Milestone 3) | a WinUSB installer such as Zadig or libwdi | to decide |
@@ -86,7 +86,7 @@ but unused today.
    [`pins.json`](../pins.json), changed by a pull request, never by a daily
    job.
 2. **One `.tgz` per platform,** every tool an upstream folder in it:
-   `oss-cad-suite/`, `openxc7/`, `verible/`, and `graphviz/` on Windows.
+   `oss-cad-suite/`, `openxc7/`, `verible/` and `elkjs/`.
    The workflow builds it into the day's pre-release, on every change and
    daily (so breakage from GitHub's runners or upstream shows up), and keeps
    the 5 newest pre-releases, as every Open Logix pre-release build does.

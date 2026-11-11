@@ -47,10 +47,10 @@ REQUIRED = {
             "bin/vvp",
             "bin/openFPGALoader",
             "bin/iceprog",
-            "bin/dot",
         ],
         "openxc7": ["bin/nextpnr-xilinx", "bin/fasm2frames", "bin/xc7frames2bit"],
         "verible": ["bin/verible-verilog-format", "bin/verible-verilog-ls"],
+        "elkjs": ["lib/elk.bundled.js", "LICENSE.md"],
     },
     "windows": {
         "oss-cad-suite": [
@@ -64,7 +64,7 @@ REQUIRED = {
         ],
         "openxc7": ["bin/nextpnr-xilinx.exe", "bin/fasm2frames.cmd", "bin/xc7frames2bit.exe"],
         "verible": ["verible-verilog-format.exe", "verible-verilog-ls.exe"],
-        "graphviz": ["bin/dot.exe"],
+        "elkjs": ["lib/elk.bundled.js", "LICENSE.md"],
     },
 }
 

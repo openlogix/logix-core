@@ -75,20 +75,24 @@
         ]
       }
     },
-    "graphviz": {
-      "description": "Graphviz, for the design diagram's dot (macOS and Linux get it in oss-cad-suite)",
-      "upstream": "https://graphviz.org",
+    "elkjs": {
+      "description": "ELK (the Eclipse Layout Kernel) for JavaScript: lays out Logix Engine's design diagrams, run by the engine itself",
+      "upstream": "https://github.com/kieler/elkjs",
       "url": {
-        "windows-x86-64": "https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/12.1.2/windows_10_cmake_Release_Graphviz-12.1.2-win64.zip"
+        "darwin-arm64": "https://registry.npmjs.org/elkjs/-/elkjs-0.12.1.tgz",
+        "linux-x86-64": "https://registry.npmjs.org/elkjs/-/elkjs-0.12.1.tgz",
+        "windows-x86-64": "https://registry.npmjs.org/elkjs/-/elkjs-0.12.1.tgz"
       },
-      "version": "12.1.2",
+      "version": "0.12.1",
       "files": {
-        "windows-x86-64": "windows_10_cmake_Release_Graphviz-12.1.2-win64.zip"
+        "darwin-arm64": "elkjs-0.12.1.tgz",
+        "linux-x86-64": "elkjs-0.12.1.tgz",
+        "windows-x86-64": "elkjs-0.12.1.tgz"
       },
       "path": {
-        "windows-x86-64": [
-          "bin"
-        ]
+        "darwin-arm64": [],
+        "linux-x86-64": [],
+        "windows-x86-64": []
       }
     }
   }
