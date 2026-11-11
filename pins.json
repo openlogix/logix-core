@@ -31,12 +31,12 @@
       "upstream": "https://github.com/cavearr/toolchain-openxc7-releases",
       "github": {
         "repo": "cavearr/toolchain-openxc7-releases",
-        "release": "2026-11-10"
+        "release": "2026-11-09"
       },
       "files": {
-        "darwin-arm64": "openxc7-toolchain-darwin-arm64-20261110.tgz",
-        "linux-x86-64": "openxc7-toolchain-linux-x86-64-20261110.tgz",
-        "windows-x86-64": "openxc7-toolchain-windows-amd64-20261110.tgz"
+        "darwin-arm64": "openxc7-toolchain-darwin-arm64-20261109.tgz",
+        "linux-x86-64": "openxc7-toolchain-linux-x86-64-20261109.tgz",
+        "windows-x86-64": "openxc7-toolchain-windows-amd64-20261109.tgz"
       },
       "path": {
         "darwin-arm64": [
