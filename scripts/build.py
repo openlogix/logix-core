@@ -6,8 +6,9 @@
 Reads pins.json, downloads each pinned upstream file for the platform
 (GitHub releases through the `gh` CLI, other files by URL), unpacks each
 into its own subfolder unchanged (only a single top-level folder is
-stripped), writes logix-core.json (what's inside and how to run it), checks that the
-programs Logix Engine runs are there, and packs it all as a reproducible
+stripped), checks that the programs Logix Engine runs are there, writes
+logix-core.json (what's inside, how to run it, and the FPGAs the tools can
+build: scripts/fpgas.py), and packs it all as a reproducible
 .tgz: fixed file order, times and owners, so the same pins give the same
 bytes and the same SHA-256.
 
@@ -27,6 +28,9 @@ import tarfile
 import urllib.request
 import zipfile
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import fpgas  # noqa: E402  (scripts/fpgas.py)
 
 PLATFORMS = ("darwin-arm64", "linux-x86-64", "windows-x86-64")
 
@@ -191,6 +195,9 @@ def main() -> None:
                              for p in comp["path"][args.platform]], "env": {}},
         }
     check_required(core, args.platform)
+    # What the tools can build, per toolchain, in their own terms: Logix
+    # Engine checks its pinned catalog against it.
+    meta["fpgas"] = fpgas.list_fpgas(core)
     (core / "logix-core.json").write_text(json.dumps(meta, indent=2) + "\n")
 
     out = Path(args.out).resolve()

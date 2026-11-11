@@ -1,0 +1,3 @@
+# Python packages scripts/build.py needs (scripts/fpgas.py reads Apycula's
+# databases with msgpack).
+msgpack==1.2.4

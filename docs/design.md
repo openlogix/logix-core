@@ -100,7 +100,8 @@ but unused today.
    reports simple: a problem reproduces with upstream's own files.
 5. **Metadata inside:** `logix-core.json` lists, per folder, the tool, its
    upstream source and version, the upstream file's SHA-256, and how to run
-   it (`run.path`, the folders for `PATH`; `run.env`, variables). It holds
+   it (`run.path`, the folders for `PATH`; `run.env`, variables), and the
+   FPGAs the tools can build (see The FPGA list). It holds
    nothing that changes from day to day, so it doesn't break
    reproducibility; the build details (date, workflow run) are in the
    release's `BUILD-INFO.json`, beside the packages.
@@ -116,6 +117,30 @@ but unused today.
    test, a format, a diagram).
 9. **The engine unpacks one archive type itself** (`.tgz` on every
    platform); nothing is installed.
+
+## The FPGA list
+
+`logix-core.json` also lists the FPGAs the core's tools can build, per
+toolchain, in the tools' own terms (decided 2026-11-10): `fpgas.ice40`
+(nextpnr's device type and package), `fpgas.ecp5` (device type, package,
+speed grade), `fpgas.gowin` (the part nextpnr takes and its packer device)
+and `fpgas.openxc7` (the part). Logix Engine checks the configuration it
+pins: every FPGA in its `logix-catalog` must be in its `logix-core`'s list,
+so a core that drops or renames an FPGA, or a catalog that adds one the
+tools can't build, fails the engine's tests before it's pinned. The list
+doesn't replace the catalog's FPGA files: those are reviewed facts about
+the chips, with fields no toolchain database has.
+
+[`scripts/fpgas.py`](../scripts/fpgas.py) generates it at build time, as
+Apio's package builds did, reading data files only, so every platform's
+core is built on Linux:
+
+| Toolchain | Source |
+| --- | --- |
+| iCE40 | icebox's chip databases (`share/icebox/chipdb-*.txt`), with nextpnr's device types |
+| ECP5 | Project Trellis's `devices.json` and each device's `iodb.json` |
+| Gowin | Apycula's databases (`*.msgpack.xz`: the parts each device serves) and nextpnr's Gowin chip databases (the devices it places); GW5AT-60B is left out, since nextpnr can't place a design on it yet |
+| Xilinx 7-series | openXC7's own inventory, `XILINX-PARTS-INVENTORY.json` (the parts its release built) |
 
 ## Processes
 

@@ -22,7 +22,8 @@ folder of its own:
 | `graphviz/` | [Graphviz](https://graphviz.org), for `dot` | Windows x64 (macOS and Linux get it in `oss-cad-suite/`) |
 
 `logix-core.json`, at the package's top, lists each folder's upstream file,
-version and SHA-256, and how Logix Engine runs it. The boards and FPGAs
+version and SHA-256, how Logix Engine runs it, and the FPGAs the tools can
+build, generated from their databases. The boards and FPGAs
 are a separate package, built by [Logix Catalog](https://github.com/openlogix/logix-catalog).
 
 ## How it's made

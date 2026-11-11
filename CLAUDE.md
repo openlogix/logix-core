@@ -24,7 +24,8 @@ The shared Open Logix rules (products, principles, wording, license, folder name
 ## Layout
 
 - `pins.json`: the components and their pinned upstream files, per platform.
-- `scripts/build.py`: builds one platform's package (`--platform`, `--out`, `--work`, `--package-tag`). Needs Python 3.12+ and the `gh` CLI. A local run downloads about 2 GB per platform into `_work/`.
+- `scripts/build.py`: builds one platform's package (`--platform`, `--out`, `--work`, `--package-tag`). Needs Python 3.12+, the `gh` CLI and `requirements.txt` (msgpack).
+- `scripts/fpgas.py`: the FPGAs the tools can build, per toolchain, in the tools' terms, written into `logix-core.json` `fpgas` (docs/design.md, The FPGA list). It reads data files only, never runs the tools, so every platform builds on Linux. Logix Engine's tests check its pinned catalog against it. A local run downloads about 2 GB per platform into `_work/`.
 - `.github/workflows/build-pre-release.yaml`: builds all platforms on Linux runners and publishes the pre-release, using the shared actions in `openlogix/.github`.
 - `docs/design.md`: the design.
 
