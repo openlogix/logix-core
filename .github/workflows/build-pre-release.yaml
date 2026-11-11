@@ -186,24 +186,26 @@ jobs:
           **logix-core: the FPGA tools Logix Engine downloads and runs.**
 
           > [!IMPORTANT]
-          > **Not for use on its own.** These packages are meant only for
-          > [Logix Engine](https://www.openlogix.org/engine/), which downloads
-          > them itself. Their content and layout may change at any time.
+          > **Not for use on its own.** These packages are meant only for [Logix Engine](https://www.openlogix.org/engine/), which downloads them itself. Their content and layout may change at any time.
 
-          Each package holds the pinned upstream releases, unchanged, one
-          folder each (see \`logix-core.json\` inside, and
-          [pins.json](https://github.com/${REPO}/blob/${REPO_COMMIT}/pins.json)).
-
-          ### Checksums
-
-          \`\`\`
-          $(cat SHA256SUMS)
-          \`\`\`
+          Each package holds the pinned upstream releases, unchanged, one folder each (see \`logix-core.json\` inside, and [pins.json](https://github.com/${REPO}/blob/${REPO_COMMIT}/pins.json)).
 
           ### Build info
 
           \`\`\`
           $(cat build-info.txt)
+          \`\`\`
+
+          ### About these releases
+
+          - Releases are created daily with a \`pre-release\` status, and only the newest ones (about 5) are kept, unless set to be \`stable\`.
+          - An engine release that ships pins a stable release, which is never deleted.
+          - To make a pre-release stable, edit it manually and change its status from \`Pre-release\` to \`None\`.
+
+          ### Checksums
+
+          \`\`\`
+          $(cat SHA256SUMS)
           \`\`\`
           EOF
           cat -n RELEASE-BODY.txt
