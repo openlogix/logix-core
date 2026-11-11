@@ -3,17 +3,26 @@
 # same tag is replaced, so the day's pre-release is from its latest commit;
 # a stable release with that tag is never touched (the run fails instead).
 #
-# Runs on every push to main and manually, not daily: logix-core changes
-# only when pins.json does. Old pre-releases are kept, since engine
-# releases pin them by tag.
+# Runs on every push to main, daily and manually, like every Open Logix
+# pre-release build, and keeps the 5 newest pre-releases (the shared
+# cleanup action). An engine release that ships pins a stable release
+# (pre-release unticked), which the cleanup never deletes.
 #
 # The steps use the shared Open Logix actions in openlogix/.github.
 
 name: build-pre-release
 
 on:
+  # Every commit to main.
   push:
     branches: [main]
+
+  # Daily at UTC midnight, so breakage from GitHub's runners or upstream
+  # changes shows up even when nothing here changes.
+  schedule:
+    - cron: "0 0 * * *"
+
+  # Allow manual activations.
   workflow_dispatch:
 
 permissions:
@@ -195,6 +204,9 @@ jobs:
           \`\`\`
           EOF
           cat -n RELEASE-BODY.txt
+
+      - name: Cleanup old pre-releases
+        uses: openlogix/.github/actions/cleanup-old-prereleases@v1
 
       - name: Ensure no conflicting release
         uses: openlogix/.github/actions/ensure-no-conflicting-release@v1

@@ -32,7 +32,7 @@ by pull request. [`scripts/build.py`](scripts/build.py) downloads the pinned
 files, unpacks each into its folder unchanged, writes `logix-core.json` and
 packs a reproducible `.tgz`, so the same pins always give the same SHA-256.
 The [build workflow](.github/workflows/build-pre-release.yaml) runs it for
-each platform and publishes the day's pre-release. [`docs/design.md`](docs/design.md)
+each platform and publishes the day's pre-release, on every change and daily; the 5 newest pre-releases are kept. [`docs/design.md`](docs/design.md)
 has the reasons and the processes.
 
 ## License

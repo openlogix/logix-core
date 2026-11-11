@@ -87,7 +87,11 @@ but unused today.
    job.
 2. **One `.tgz` per platform,** every tool an upstream folder in it:
    `oss-cad-suite/`, `openxc7/`, `verible/`, and `graphviz/` on Windows.
-   The workflow builds it into the day's pre-release.
+   The workflow builds it into the day's pre-release, on every change and
+   daily (so breakage from GitHub's runners or upstream shows up), and keeps
+   the 5 newest pre-releases, as every Open Logix pre-release build does.
+   An engine release that ships pins a stable release, which is never
+   deleted.
 3. **Reproducible:** fixed file order, times and owners, so the same pins
    give the same bytes and the same SHA-256, and an engine can tell an
    unchanged core from a new one.
