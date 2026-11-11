@@ -3,6 +3,8 @@
   <img alt="logix-core" src="https://www.openlogix.org/brand/readme/core-light.svg" height="96">
 </picture>
 
+<br>
+
 [![License: MIT or Apache 2.0](https://img.shields.io/badge/License-MIT%20or%20Apache%202.0-blue)](#license)
 
 <img src="https://www.openlogix.org/brand/readme/macos.svg" height="40" alt="macOS (Apple Silicon)" title="macOS (Apple Silicon)">
@@ -10,11 +12,7 @@
 [![build](https://img.shields.io/github/actions/workflow/status/openlogix/logix-core/build-pre-release.yaml?branch=main&event=schedule&label=build)](https://github.com/openlogix/logix-core/actions/workflows/build-pre-release.yaml)
 
 > [!IMPORTANT]
-> **Not for use on its own.** `logix-core` is meant only for
-> [Logix Engine](https://www.openlogix.org/engine/), which downloads it and
-> runs its tools. Its content and layout may change at any time, without
-> notice. To use these tools, use Logix Engine or a frontend built on it,
-> such as [Logix IDE](https://www.openlogix.org/ide/).
+> **Use it through Logix Engine.** logix-core is meant only for [Logix Engine](https://www.openlogix.org/engine/), which downloads it and runs its tools. It isn't for use on its own, and its content and layout may change at any time. To use these tools, use Logix Engine or a frontend built on it, such as [Logix IDE](https://www.openlogix.org/ide/).
 
 `logix-core` is the package of open source FPGA tools that Logix Engine
 downloads: one `.tgz` per platform, published here as dated pre-releases.

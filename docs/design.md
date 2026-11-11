@@ -7,8 +7,8 @@ goal of Logix Engine ("Decouple from Apio's releases", the engine's
 `docs/requirements.md`). How engines already on users' machines get a newer
 core is the dependency updates discussion's subject, not this document's.
 
-> `logix-core` is meant only for Logix Engine. It isn't for use on its own,
-> and its content and layout may change at any time.
+> [!IMPORTANT]
+> **Use it through Logix Engine.** logix-core is meant only for [Logix Engine](https://www.openlogix.org/engine/), which downloads it and runs its tools. It isn't for use on its own, and its content and layout may change at any time.
 
 ## Decisions (2026-11-10)
 
