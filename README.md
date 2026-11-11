@@ -1,5 +1,8 @@
 # logix-core
 
+[![build](https://img.shields.io/github/actions/workflow/status/openlogix/logix-core/build-pre-release.yaml?branch=main&label=build)](https://github.com/openlogix/logix-core/actions/workflows/build-pre-release.yaml)
+![macOS Apple Silicon](https://img.shields.io/badge/macOS-Apple%20Silicon-000000?logo=apple&logoColor=white)
+
 > [!IMPORTANT]
 > **Not for use on its own.** `logix-core` is meant only for
 > [Logix Engine](https://www.openlogix.org/engine/), which downloads it and
