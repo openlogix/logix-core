@@ -156,7 +156,7 @@ def pack(core: Path, out: Path) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--platform", required=True, choices=PLATFORMS)
-    ap.add_argument("--out", required=True, help="folder for the .tgz and its .json")
+    ap.add_argument("--out", required=True, help="folder for the .tgz")
     ap.add_argument("--work", default="_work", help="scratch folder for downloads")
     ap.add_argument("--package-tag", default="", help="yyyymmdd for the file name")
     args = ap.parse_args()
@@ -198,10 +198,7 @@ def main() -> None:
     tag = f"-{args.package_tag}" if args.package_tag else ""
     tgz = out / f"logix-core-{args.platform}{tag}.tgz"
     pack(core, tgz)
-    info = {"file": tgz.name, "platform": args.platform, "size": tgz.stat().st_size,
-            "sha256": sha256(tgz), "contents": meta}
-    (out / f"logix-core-{args.platform}.json").write_text(json.dumps(info, indent=2) + "\n")
-    print(f"{tgz.name}: {info['size']} bytes, sha256 {info['sha256']}")
+    print(f"{tgz.name}: {tgz.stat().st_size} bytes, sha256 {sha256(tgz)}")
 
 
 if __name__ == "__main__":

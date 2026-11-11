@@ -220,10 +220,7 @@ jobs:
           body_path: RELEASE-BODY.txt
           files: |
             _artifacts/logix-core-darwin-arm64-${{ env.PACKAGE_TAG }}.tgz
-            _artifacts/logix-core-darwin-arm64.json
             _artifacts/logix-core-linux-x86-64-${{ env.PACKAGE_TAG }}.tgz
-            _artifacts/logix-core-linux-x86-64.json
             _artifacts/logix-core-windows-x86-64-${{ env.PACKAGE_TAG }}.tgz
-            _artifacts/logix-core-windows-x86-64.json
             SHA256SUMS
             BUILD-INFO.json
