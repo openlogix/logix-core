@@ -9,7 +9,7 @@
 
 <img src="https://www.openlogix.org/brand/readme/macos.svg" height="40" alt="macOS (Apple Silicon)" title="macOS (Apple Silicon)">
 
-[![build](https://img.shields.io/github/actions/workflow/status/openlogix/logix-core/build-pre-release.yaml?label=build)](https://github.com/openlogix/logix-core/actions/workflows/build-pre-release.yaml)
+[![build](https://img.shields.io/github/actions/workflow/status/openlogix/logix-core/build-pre-release.yaml?branch=main&label=build)](https://github.com/openlogix/logix-core/actions/workflows/build-pre-release.yaml)
 
 > [!IMPORTANT]
 > **Use it through Logix Engine.** logix-core is meant only for [Logix Engine](https://www.openlogix.org/engine/), which downloads it and runs its tools. It isn't for use on its own, and its content and layout may change at any time. To use these tools, use Logix Engine or a frontend built on it, such as [Logix IDE](https://www.openlogix.org/ide/).
