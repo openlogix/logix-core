@@ -28,8 +28,9 @@ core is the dependency updates discussion's subject, not this document's.
   `logix-core.json`, per tool, not in the engine; Apio hard-wires it in its
   `config.jsonc`.
 - **Each engine release pins one `logix-core` and one `logix-catalog`,** as
-  Apio pins its packages; updates without an engine release belong to the
-  dependency updates discussion.
+  Apio pins its packages. Newer ones can reach installed engines without an
+  engine release through the engine's remote config, as Apio's remote
+  config does (designed, not implemented yet).
 - **Windows drivers:** decided with Milestone 3.
 
 ## Why
@@ -152,6 +153,10 @@ core is built on Linux:
 3. An engine pull request points the manifest at it; the engine's tests
    build, test, format and draw with it.
 4. Merged, it's in the next engine pre-release.
+5. Later, with remote updates (designed, not implemented yet), engines
+   already installed get it without an engine release: once the core is
+   made stable, a pull request to the engine's remote config names it, and
+   the engine's tests run with it before it merges.
 
 ### Adding a platform
 
