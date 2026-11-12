@@ -154,9 +154,9 @@ core is built on Linux:
    build, test, format and draw with it.
 4. Merged, it's in the next engine pre-release.
 5. Later, with remote updates (designed, not implemented yet), engines
-   already installed get it without an engine release: once the core is
-   made stable, a pull request to the engine's remote config names it, and
-   the engine's tests run with it before it merges.
+   already installed get it without an engine release: a pull request to
+   the engine's remote config names it (pre-releases are allowed during
+   development), and the engine's tests run with it before it merges.
 
 ### Adding a platform
 
