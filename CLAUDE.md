@@ -14,6 +14,8 @@ The shared Open Logix rules (products, principles, wording, license, folder name
 
 ## Rules
 
+**Repo type: dependency** (topic `openlogix-dependency`; the website repo's `CLAUDE.md`, Repo types, owns the policy): Logix Engine downloads its releases as its remote config names them.
+
 - **Pins change only by pull request.** `pins.json` names each tool's upstream release and files per platform. No job updates it on its own.
 - **Upstream, unchanged.** Each tool is its upstream release, unpacked into its own folder (only a single top folder is stripped). Logix builds none of the tools and patches none of them.
 - **How to run each tool lives in the package,** in `logix-core.json` (`run.path`, `run.env`), set from `pins.json`. Logix Engine reads it; don't hard-wire tool folders in the engine.
