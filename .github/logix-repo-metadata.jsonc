@@ -3,5 +3,7 @@
 {
   "$schema": "https://www.openlogix.org/schemas/logix-repo-metadata-v1.json",
   // Logix Engine downloads its releases as its remote config names them.
-  "type": "dependency"
+  "type": "dependency",
+  // This repo takes no issues: its README sends people to openlogix/logix-engine's.
+  "issues": "openlogix/logix-engine"
 }

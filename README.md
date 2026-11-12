@@ -33,6 +33,8 @@ version and SHA-256, how Logix Engine runs it, and the FPGAs the tools can
 build, generated from their databases. The boards and FPGAs
 are a separate package, built by [Logix Catalog](https://github.com/openlogix/logix-catalog).
 
+**Problems or ideas?** Report them in [Logix Engine's issues](https://github.com/openlogix/logix-engine/issues/new/choose): this repo takes no issues. Security problems: report them privately, as [SECURITY.md](https://github.com/openlogix/.github/blob/main/SECURITY.md) says.
+
 ## How it's made
 
 [`pins.json`](pins.json) pins each tool's upstream release; it changes only
