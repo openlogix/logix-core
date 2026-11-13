@@ -27,7 +27,15 @@
       },
       "env": {
         "windows-x86-64": {
-          "VERILATOR_ROOT": "share/verilator"
+          "VERILATOR_ROOT": "share/verilator",
+          "OPENFPGALOADER_SOJ_DIR": "share/openFPGALoader",
+          "PYTHON_EXECUTABLE": "lib/python3.exe",
+          "QT_PLUGIN_PATH": "lib/qt6/plugins",
+          "GTK_EXE_PREFIX": ".",
+          "GTK_DATA_PREFIX": ".",
+          "GDK_PIXBUF_MODULEDIR": "lib/gdk-pixbuf-2.0/2.10.0/loaders",
+          "GDK_PIXBUF_MODULE_FILE": "lib/gdk-pixbuf-2.0/2.10.0/loaders.cache",
+          "SSL_CERT_FILE": "etc/cacert.pem"
         }
       }
     },
