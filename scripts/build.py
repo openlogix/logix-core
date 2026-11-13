@@ -19,6 +19,7 @@ and runs it, and its content may change at any time.
 import argparse
 import gzip
 import os
+import posixpath
 import hashlib
 import json
 import shutil
@@ -138,6 +139,13 @@ def unpack(archive: Path, dest: Path) -> None:
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def core_relative(component: str, path: str) -> str:
+    """A path relative to a component (pins.json's path and env), relative
+    to the core instead: "bin" in openxc7 is "openxc7/bin", and
+    "../oss-cad-suite/bin" reaches another component's folder."""
+    return posixpath.normpath(f"{component}/{path}")
+
+
 def check_required(core: Path, platform: str) -> None:
     kind = "windows" if platform.startswith("windows") else "unix"
     missing = [f"{c}/{p}" for c, paths in REQUIRED[kind].items() for p in paths
@@ -215,8 +223,11 @@ def main() -> None:
             "source": source,
             # How Logix Engine runs the component's programs: these
             # folders, relative to the core, go on PATH.
-            "run": {"path": [f"{name}/{p}" if p != "." else name
-                             for p in for_platform(comp, "path", args.platform)], "env": {}},
+            "run": {"path": [core_relative(name, p) for p in for_platform(comp, "path", args.platform)],
+                    # Variables the programs need, each naming a folder
+                    # (such as VERILATOR_ROOT on Windows), relative to the core.
+                    "env": {k: core_relative(name, v)
+                            for k, v in comp.get("env", {}).get(args.platform, {}).items()}},
         }
     check_required(core, args.platform)
     check_yosys_release(core, pins)

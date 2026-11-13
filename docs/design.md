@@ -104,7 +104,10 @@ but unused today.
    reports simple: a problem reproduces with upstream's own files.
 5. **Metadata inside:** `logix-core.json` lists, per folder, the tool, its
    upstream source and version, the upstream file's SHA-256, and how to run
-   it (`run.path`, the folders for `PATH`; `run.env`, variables), and the
+   it (`run.path`, the folders for `PATH`, the first holding its programs,
+   which may include another component's, as openXC7 includes the YosysHQ
+   suite's for its yosys and Python; `run.env`, variables naming folders,
+   such as `VERILATOR_ROOT` on Windows; all relative to the core), and the
    FPGAs the tools can build (see The FPGA list). It holds
    nothing that changes from day to day, so it doesn't break
    reproducibility; the build details (date, workflow run) are in the

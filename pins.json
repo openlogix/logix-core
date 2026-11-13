@@ -1,5 +1,5 @@
 {
-  "$comment": "What logix-core is made of: each tool's pinned upstream release: files, URL and run folders per platform, or one value for every platform (elkjs). Changed only by pull request (docs/design.md, Processes). scripts/build.py reads it. Boards aren't here: they're the logix-catalog package. The list of FPGAs the tools can build is generated from their databases (scripts/fpgas.py).",
+  "$comment": "What logix-core is made of: each tool's pinned upstream release: files, URL and run folders per platform (path: the PATH folders, relative to the component, the first holding its programs; ../ reaches another component; env: variables naming folders, relative to the component, per platform where needed), or one value for every platform (elkjs). Changed only by pull request (docs/design.md, Processes). scripts/build.py reads it. Boards aren't here: they're the logix-catalog package. The list of FPGAs the tools can build is generated from their databases (scripts/fpgas.py).",
   "components": {
     "oss-cad-suite": {
       "description": "YosysHQ OSS CAD Suite: yosys, nextpnr, icestorm, Project Trellis, Apycula, Icarus Verilog, Verilator, GTKWave, openFPGALoader and more",
@@ -24,6 +24,11 @@
           "bin",
           "lib"
         ]
+      },
+      "env": {
+        "windows-x86-64": {
+          "VERILATOR_ROOT": "share/verilator"
+        }
       }
     },
     "openxc7": {
@@ -40,14 +45,18 @@
       },
       "path": {
         "darwin-arm64": [
-          "bin"
+          "bin",
+          "../oss-cad-suite/bin"
         ],
         "linux-x86-64": [
-          "bin"
+          "bin",
+          "../oss-cad-suite/bin"
         ],
         "windows-x86-64": [
           "bin",
-          "lib"
+          "lib",
+          "../oss-cad-suite/bin",
+          "../oss-cad-suite/lib"
         ]
       }
     },
