@@ -31,7 +31,10 @@ core is the dependency updates discussion's subject, not this document's.
   Apio pins its packages. Newer ones can reach installed engines without an
   engine release through the engine's remote config, as Apio's remote
   config does (designed, not implemented yet).
-- **Windows drivers:** decided with Milestone 3.
+- **Windows drivers** (decided 2026-11-13): libwdi's `wdi-simple`, run by
+  Logix Engine (drivers are the engine's job). Where it's built and shipped
+  (this package or a repo of its own) is decided in Milestone 3's driver
+  phase (the engine's `docs/requirements.md`, Milestone 3 plan).
 
 ## Why
 
@@ -75,7 +78,7 @@ version uses.
 | Diagram | `yosys`, then ELK's layout (`elk.bundled.js`), which the engine runs itself | `oss-cad-suite/` + `elkjs/` |
 | Program the board | `openFPGALoader`, `iceprog`, `dfu-util`, `icesprog` | `oss-cad-suite/` |
 | Live errors in Logix IDE | `verible-verilog-ls` | `verible/` |
-| Windows drivers (Milestone 3) | a WinUSB installer such as Zadig or libwdi | to decide |
+| Windows drivers (Milestone 3) | `wdi-simple` (libwdi), run by Logix Engine | to decide |
 
 The engine scans USB with its own libusb, built into the engine. Everything
 else in the suite (such as GHDL and formal verification tools) is shipped
