@@ -146,6 +146,21 @@ def check_required(core: Path, platform: str) -> None:
         sys.exit("Missing in logix-core: " + ", ".join(missing))
 
 
+def check_yosys_release(core: Path, pins: dict) -> None:
+    """openXC7 is built against one YosysHQ suite release and must run with
+    its yosys (docs/design.md, openXC7): its package's BUILD-INFO.json names
+    that release as `yosys-release-tag`, which must be the suite release
+    pins.json pins. A core that mixes them isn't published."""
+    want = pins["components"]["oss-cad-suite"]["github"]["release"]
+    info = core / "openxc7" / "BUILD-INFO.json"
+    if not info.is_file():
+        sys.exit("openxc7: no BUILD-INFO.json, so its yosys release can't be checked")
+    got = json.loads(info.read_text()).get("yosys-release-tag")
+    if got != want:
+        sys.exit(f"openxc7 was built for the YosysHQ suite {got!r}, but pins.json pins {want!r}: "
+                 "pin an openXC7 build made for that suite, or that suite")
+
+
 def pack(core: Path, out: Path) -> None:
     """A reproducible .tgz of the contents of `core` (no top folder): sorted
     entries, time 0, owner 0, gzip without a name or time."""
@@ -204,6 +219,7 @@ def main() -> None:
                              for p in for_platform(comp, "path", args.platform)], "env": {}},
         }
     check_required(core, args.platform)
+    check_yosys_release(core, pins)
     # What the tools can build, per toolchain, in their own terms: Logix
     # Engine checks its pinned catalog against it.
     meta["fpgas"] = fpgas.list_fpgas(core)

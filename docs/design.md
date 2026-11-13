@@ -173,7 +173,10 @@ core is built on Linux:
 ### openXC7
 
 1. Its pin names an openXC7 build release (cavearr's repo now, the openXC7
-   project later) built against a YosysHQ release.
+   project later) built against a YosysHQ release. Each openXC7 package's
+   `BUILD-INFO.json` names that release (`yosys-release-tag`), and the build
+   fails unless it's the YosysHQ release pinned here (`scripts/build.py`,
+   `check_yosys_release`).
 2. A new YosysHQ release and its matching openXC7 build move in one pull
    request; once openXC7 is in the YosysHQ suite, its folder goes away.
 
