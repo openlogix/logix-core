@@ -22,7 +22,10 @@ core is the dependency updates discussion's subject, not this document's.
 - **Upstream releases, unchanged:** the workflow downloads each pinned
   upstream file at build time, as Apio does, unpacks it, and places its
   folder unchanged in the package. Engines download `logix-core`, never
-  upstream. Logix builds none of the tools, openXC7 included.
+  upstream. Logix builds none of the tools, openXC7 included, with one
+  exception: **a tool upstream publishes no build of is built here** from
+  its pinned upstream source, unmodified (the user's rule, 2026-11-13).
+  Today that's only `wdi-simple`.
 - **The suite whole,** not trimmed to the programs the engine runs.
 - **How to run each tool** (the folders for `PATH`, variables) lives in
   `logix-core.json`, per tool, not in the engine; Apio hard-wires it in its
@@ -32,9 +35,10 @@ core is the dependency updates discussion's subject, not this document's.
   engine release through the engine's remote config, as Apio's remote
   config does (designed, not implemented yet).
 - **Windows drivers** (decided 2026-11-13): libwdi's `wdi-simple`, run by
-  Logix Engine (drivers are the engine's job). Where it's built and shipped
-  (this package or a repo of its own) is decided in Milestone 3's driver
-  phase (the engine's `docs/requirements.md`, Milestone 3 plan).
+  Logix Engine (drivers are the engine's job), in the Windows package only,
+  as `wdi-simple/` (the user's decision, Milestone 3's driver phase: built
+  in this repo's workflow rather than in a repo of its own). See
+  wdi-simple, below.
 
 ## Why
 
@@ -78,7 +82,7 @@ version uses.
 | Diagram | `yosys`, then ELK's layout (`elk.bundled.js`), which the engine runs itself | `oss-cad-suite/` + `elkjs/` |
 | Program the board | `openFPGALoader`, `iceprog`, `dfu-util`, `icesprog` | `oss-cad-suite/` |
 | Live errors in Logix IDE | `verible-verilog-ls` | `verible/` |
-| Windows drivers (Milestone 3) | `wdi-simple` (libwdi), run by Logix Engine | to decide |
+| Windows drivers (Milestone 3) | `wdi-simple` (libwdi), run by Logix Engine | `wdi-simple/` (Windows only) |
 
 The engine scans USB with its own libusb, built into the engine. Everything
 else in the suite (such as GHDL and formal verification tools) is shipped
@@ -175,6 +179,32 @@ core is built on Linux:
 1. The engine's tests fail with the new core, so it never reaches users.
 2. The engine keeps the last good core, and the problem is reported
    upstream.
+
+### wdi-simple
+
+libwdi's command-line example, which installs a driver for one USB device's
+interface (Logix Engine installs WinUSB for boards whose programmers need it
+on Windows). libwdi publishes Zadig built, but not `wdi-simple`, so:
+
+1. **The pin is libwdi's source:** `pins.json` names `pbatard/libwdi`, a
+   release tag and the commit it names. The build checks out the commit and
+   fails if the tag names another one (a tag can move, a commit can't). It
+   also pins Microsoft's WDF co-installer package (which libwdi embeds for
+   WinUSB) by URL and SHA-256.
+2. **WinUSB only** (the user's decision, 2026-11-13): no libusb0 or libusbK
+   files, as Apio's users choose WinUSB in Zadig for the same boards.
+3. **Built in the workflow** (`build-wdi-simple`, on Windows with MSYS2,
+   `scripts/build-wdi-simple.sh`), unmodified, into a zip of
+   `wdi-simple.exe` and libwdi's licenses (LGPL-3.0 and the GPL-3.0 text it
+   builds on), which the Windows package build unpacks like a download.
+4. **Stable bytes:** a compiler build isn't reproducible from day to day
+   (MSYS2's toolchain moves), so the zip is cached by its pin and the
+   script, and built again only when either changes; the program is linked
+   without a time stamp, so a rebuild is more likely to match. If the cache
+   is ever lost, the next core has a new SHA-256 for the same pins, and
+   engines download it again once.
+5. **Moving to a new libwdi release:** change the tag and commit (and the
+   WDK pin, if libwdi asks for another one) in one pull request.
 
 ### openXC7
 

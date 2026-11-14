@@ -52,10 +52,64 @@ jobs:
           package-name: logix-core
           description: The FPGA tools Logix Engine downloads and runs. Not for use on its own; its content may change at any time.
 
+  # wdi-simple, the WinUSB driver installer Logix Engine runs on Windows:
+  # libwdi publishes no build of it, so it's built here from the pinned
+  # libwdi source, unmodified (scripts/build-wdi-simple.sh), on Windows with
+  # MSYS2. Cached by its pin and the script, so it's built again only when
+  # either changes and the Windows core keeps its bytes from day to day.
+  build-wdi-simple:
+    runs-on: windows-2025
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v7
+
+      - name: Compute the cache key
+        id: key
+        shell: bash
+        run: |
+          pin="$(python -c 'import json; print(json.dumps(json.load(open("pins.json"))["components"]["wdi-simple"], sort_keys=True))')"
+          hash="$( { echo "$pin"; cat scripts/build-wdi-simple.sh; } | sha256sum | cut -c1-32)"
+          echo "key=wdi-simple-$hash" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the built zip
+        id: cache
+        uses: actions/cache@v6
+        with:
+          path: _wdi
+          key: ${{ steps.key.outputs.key }}
+
+      - name: Set up MSYS2
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-toolchain
+            base-devel
+            autotools
+            git
+            curl
+            zip
+            mingw-w64-x86_64-jq
+
+      - name: Build wdi-simple
+        if: steps.cache.outputs.cache-hit != 'true'
+        shell: msys2 {0}
+        run: scripts/build-wdi-simple.sh _wdi
+
+      - name: Upload the zip
+        uses: actions/upload-artifact@v7
+        with:
+          if-no-files-found: error
+          name: wdi-simple
+          path: _wdi/*.zip
+
   # One job per platform. Packing needs no platform of its own: the files
-  # are only downloaded, unpacked and packed again.
+  # are only downloaded, unpacked and packed again (and wdi-simple, built
+  # above, put in the Windows downloads first).
   build:
-    needs: prepare
+    needs: [prepare, build-wdi-simple]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -72,6 +126,13 @@ jobs:
 
       - name: Install the build's Python packages
         run: pip install -r requirements.txt
+
+      - name: Get wdi-simple
+        if: matrix.platform == 'windows-x86-64'
+        uses: actions/download-artifact@v8
+        with:
+          name: wdi-simple
+          path: ${{ runner.temp }}/work/downloads/windows-x86-64
 
       - name: Build logix-core for ${{ matrix.platform }}
         env:
@@ -108,7 +169,7 @@ jobs:
       - name: Write the release content
         run: |
           cat > CONTENT.md <<EOF
-          Each package holds the pinned upstream releases, unchanged, one folder each (see \`logix-core.json\` inside, and [pins.json](https://github.com/${REPO}/blob/${REPO_COMMIT}/pins.json)).
+          Each package holds the pinned upstream releases, unchanged, one folder each (see \`logix-core.json\` inside, and [pins.json](https://github.com/${REPO}/blob/${REPO_COMMIT}/pins.json)). The Windows package also holds libwdi's wdi-simple, which upstream publishes no build of: it's built here from the pinned libwdi source, unmodified.
           EOF
 
       - name: Publish the pre-release

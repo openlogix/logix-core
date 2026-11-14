@@ -27,6 +27,7 @@ folder of its own:
 | `openxc7/` | [openXC7](https://github.com/cavearr/toolchain-openxc7-releases): nextpnr-xilinx and the Project X-Ray tools and database | macOS (Apple Silicon), Linux x64, Windows x64 |
 | `verible/` | [CHIPS Alliance Verible](https://github.com/chipsalliance/verible): the Verilog formatter and language server | macOS (Apple Silicon), Linux x64, Windows x64 |
 | `elkjs/` | [ELK for JavaScript](https://github.com/kieler/elkjs) (the Eclipse Layout Kernel), which lays out Logix Engine's design diagrams; the engine runs it itself | macOS (Apple Silicon), Linux x64, Windows x64 |
+| `wdi-simple/` | [libwdi](https://github.com/pbatard/libwdi)'s `wdi-simple`, which installs the WinUSB driver some boards need on Windows; Logix Engine runs it. libwdi publishes no build of it, so it's built here from libwdi's source, unmodified | Windows x64 |
 
 `logix-core.json`, at the package's top, lists each folder's upstream file,
 version and SHA-256, how Logix Engine runs it, and the FPGAs the tools can

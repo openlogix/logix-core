@@ -17,7 +17,7 @@ The shared Open Logix rules (products, principles, wording, license, folder name
 **Repo type: dependency** (`.github/logix-repo-metadata.jsonc`; the website repo's `CLAUDE.md`, Repo types, owns the policy): Logix Engine downloads its releases as its remote config names them.
 
 - **Pins change only by pull request.** `pins.json` names each tool's upstream release and files per platform. No job updates it on its own.
-- **Upstream, unchanged.** Each tool is its upstream release, unpacked into its own folder (only a single top folder is stripped). Logix builds none of the tools and patches none of them.
+- **Upstream, unchanged.** Each tool is its upstream release, unpacked into its own folder (only a single top folder is stripped). Logix builds none of the tools and patches none of them, except that **a tool upstream publishes no build of is built here** from its pinned upstream source (tag and commit), unmodified (the user's rule, 2026-11-13): today only libwdi's `wdi-simple`, in the Windows package only (`docs/design.md`, wdi-simple). Never use a personal repo's build or workflow (the user's rule).
 - **How to run each tool lives in the package,** in `logix-core.json` (`run.path`, `run.env`), set from `pins.json`. Logix Engine reads it; don't hard-wire tool folders in the engine.
 - **Reproducible.** The same pins give the same bytes: nothing in the package may change from build to build (no dates, run ids or host details). Build details go in the release's `BUILD-INFO.json`, beside the packages.
 - **Daily pre-releases** (the Open Logix rule for every pre-release build, website repo's `CLAUDE.md`): the workflow runs on every push to `main`, daily at 00:00 UTC (so breakage from GitHub's runners or upstream shows up even when nothing changes) and manually. It's built on the shared actions (`start-pre-release`, `read-build-info`, `publish-pre-release`, which writes the standard release text, remakes the day's pre-release from scratch and deletes old ones by the shared policy). A pinned pre-release is temporary: an engine release that ships pins a stable release (pre-release unticked), which is never deleted.
@@ -29,7 +29,8 @@ The shared Open Logix rules (products, principles, wording, license, folder name
 - `pins.json`: the components and their pinned upstream files, per platform.
 - `scripts/build.py`: builds one platform's package (`--platform`, `--out`, `--work`, `--package-tag`). Needs Python 3.12+, the `gh` CLI and `requirements.txt` (msgpack).
 - `scripts/fpgas.py`: the FPGAs the tools can build, per toolchain, in the tools' terms, written into `logix-core.json` `fpgas` (docs/design.md, The FPGA list). It reads data files only, never runs the tools, so every platform builds on Linux. Logix Engine's tests check its pinned catalog against it. A local run downloads about 2 GB per platform into `_work/`.
-- `.github/workflows/build-pre-release.yaml`: builds all platforms on Linux runners and publishes the pre-release, using the shared actions in `openlogix/.github`.
+- `scripts/build-wdi-simple.sh`: builds `wdi-simple.exe` from the pinned libwdi source (MSYS2 on Windows), into the zip `build.py` takes as the component's download.
+- `.github/workflows/build-pre-release.yaml`: builds `wdi-simple` on a Windows runner (cached by its pin and script), then all platforms on Linux runners, and publishes the pre-release, using the shared actions in `openlogix/.github`.
 - `docs/design.md`: the design.
 
 ## Commits

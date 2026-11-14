@@ -4,7 +4,8 @@
     scripts/build.py --platform darwin-arm64 --out _out [--work _work]
 
 Reads pins.json, downloads each pinned upstream file for the platform
-(GitHub releases through the `gh` CLI, other files by URL), unpacks each
+(GitHub releases through the `gh` CLI, other files by URL; a tool built from
+source, such as wdi-simple, must already be in the downloads folder), unpacks each
 into its own subfolder unchanged (only a single top-level folder is
 stripped), checks that the programs Logix Engine runs are there, writes
 logix-core.json (what's inside, how to run it, and the FPGAs the tools can
@@ -66,6 +67,7 @@ REQUIRED = {
         "openxc7": ["bin/nextpnr-xilinx.exe", "bin/fasm2frames.cmd", "bin/xc7frames2bit.exe"],
         "verible": ["verible-verilog-format.exe", "verible-verilog-ls.exe"],
         "elkjs": ["lib/elk.bundled.js", "LICENSE.md"],
+        "wdi-simple": ["wdi-simple.exe"],
     },
 }
 
@@ -105,6 +107,11 @@ def download(comp: dict, platform: str, dest: Path) -> Path:
     if target.exists():
         return target
     dest.mkdir(parents=True, exist_ok=True)
+    if "build" in comp:
+        # Built from source, not downloaded: the workflow's build job for it
+        # (such as build-wdi-simple) puts the file here first.
+        sys.exit(f"{name}: built by logix-core from source, not downloaded; "
+                 f"build it first (scripts/build-wdi-simple.sh) into {dest}")
     if "github" in comp:
         g = comp["github"]
         run(["gh", "release", "download", g["release"], "--repo", g["repo"],
@@ -208,10 +215,19 @@ def main() -> None:
 
     meta = {"format": 1, "note": NOTE, "platform": args.platform, "components": {}}
     for name, comp in pins["components"].items():
+        # A component only some platforms have, such as wdi-simple (Windows).
+        if args.platform not in comp.get("platforms", PLATFORMS):
+            continue
         archive = download(comp, args.platform, work / "downloads" / args.platform)
         unpack(archive, core / name)
         source = {"upstream": comp["upstream"], "file": archive.name, "sha256": sha256(archive)}
-        if "github" in comp:
+        if "build" in comp:
+            # Built by logix-core from this upstream source, unmodified,
+            # since upstream publishes no build of it.
+            b = comp["build"]
+            source.update({"repo": b["repo"], "tag": b["tag"], "commit": b["commit"],
+                           "built": "by logix-core from this source, unmodified"})
+        elif "github" in comp:
             source["repo"] = comp["github"]["repo"]
             source["release"] = comp["github"]["release"]
         else:

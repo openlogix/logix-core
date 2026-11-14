@@ -1,5 +1,5 @@
 {
-  "$comment": "What logix-core is made of: each tool's pinned upstream release: files, URL and run folders per platform (path: the PATH folders, relative to the component, the first holding its programs; ../ reaches another component; env: variables naming folders, relative to the component, per platform where needed), or one value for every platform (elkjs). Changed only by pull request (docs/design.md, Processes). scripts/build.py reads it. Boards aren't here: they're the logix-catalog package. The list of FPGAs the tools can build is generated from their databases (scripts/fpgas.py).",
+  "$comment": "What logix-core is made of: each tool's pinned upstream release (or, for a tool upstream publishes no build of, its pinned upstream source, which logix-core builds unmodified: build, with platforms naming the only platforms that have it): files, URL and run folders per platform (path: the PATH folders, relative to the component, the first holding its programs; ../ reaches another component; env: variables naming folders, relative to the component, per platform where needed), or one value for every platform (elkjs). Changed only by pull request (docs/design.md, Processes). scripts/build.py reads it. Boards aren't here: they're the logix-catalog package. The list of FPGAs the tools can build is generated from their databases (scripts/fpgas.py).",
   "components": {
     "oss-cad-suite": {
       "description": "YosysHQ OSS CAD Suite: yosys, nextpnr, icestorm, Project Trellis, Apycula, Icarus Verilog, Verilator, GTKWave, openFPGALoader and more",
@@ -99,6 +99,31 @@
       "version": "0.12.1",
       "files": "elkjs-0.12.1.tgz",
       "path": []
+    },
+    "wdi-simple": {
+      "description": "libwdi's wdi-simple: installs the WinUSB driver for a USB device, which Logix Engine runs on Windows to set up boards. libwdi publishes no build of it, so logix-core builds it from the pinned libwdi source, unmodified (scripts/build-wdi-simple.sh)",
+      "upstream": "https://github.com/pbatard/libwdi",
+      "build": {
+        "repo": "pbatard/libwdi",
+        "tag": "v1.5.1",
+        "commit": "9b23b82a2dd1cbffc16d46c212f92c6bf8c0c602",
+        "wdk": {
+          "$comment": "Microsoft's WDF co-installers, which libwdi embeds for WinUSB: the file go.microsoft.com/fwlink/p/?LinkID=253170 leads to, pinned by its SHA-256",
+          "url": "https://download.microsoft.com/download/0/5/F/05FD6919-6250-425B-86ED-9B095E54065A/wdfcoinstaller.msi",
+          "sha256": "29314207814ce9d5d73695f7e9239539cf37c79e750b9d5ea5a5ef5487a583d6"
+        }
+      },
+      "platforms": [
+        "windows-x86-64"
+      ],
+      "files": {
+        "windows-x86-64": "wdi-simple-v1.5.1-windows-x86-64.zip"
+      },
+      "path": {
+        "windows-x86-64": [
+          "."
+        ]
+      }
     }
   }
 }
