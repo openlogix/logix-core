@@ -91,7 +91,7 @@ jobs:
             git
             curl
             zip
-            mingw-w64-x86_64-jq
+            jq
 
       - name: Build wdi-simple
         if: steps.cache.outputs.cache-hit != 'true'
