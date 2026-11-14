@@ -93,6 +93,12 @@ jobs:
             zip
             jq
 
+      # libwdi v1.5.1's own code gives three compiler warnings, all unused
+      # variables (libwdi.c is_64bit; zadig.c is_64bit and zadig_net.c
+      # archname, from Zadig, which libwdi's build compiles with the
+      # examples). Accepted under Strict CI's upstream-warnings door (the
+      # website repo's CLAUDE.md): upstream's build shows them too, they're
+      # harmless, and we build libwdi unmodified.
       - name: Build wdi-simple
         if: steps.cache.outputs.cache-hit != 'true'
         shell: msys2 {0}
