@@ -172,6 +172,14 @@ jobs:
           merge-multiple: true
           path: _artifacts
 
+      # Every package a CI build publishes is scanned (the website repo's
+      # CLAUDE.md, Shared CI): the upstream tools inside included.
+      - name: Scan the packages for viruses
+        uses: openlogix/.github/actions/scan-files-for-viruses@main
+        with:
+          file-patterns: |
+            _artifacts/logix-core-*.tgz
+
       - name: Write the release content
         run: |
           cat > CONTENT.md <<EOF
