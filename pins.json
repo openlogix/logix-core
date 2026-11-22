@@ -124,6 +124,29 @@
           "."
         ]
       }
+    },
+    "logix-viewer": {
+      "description": "Logix Viewer, Open Logix's own program (apps/viewer here, not an upstream tool): shows Logix Engine's pages (waveforms, diagrams) in windows of their own, one app per kind of page (apps.json). Built by logix-core's workflow from this repo's source (scripts/build-viewer.sh)",
+      "upstream": "https://github.com/openlogix/logix-core",
+      "build": {
+        "local": "apps/viewer"
+      },
+      "files": {
+        "darwin-arm64": "logix-viewer-darwin-arm64.tgz",
+        "linux-x86-64": "logix-viewer-linux-x86-64.tgz",
+        "windows-x86-64": "logix-viewer-windows-x86-64.tgz"
+      },
+      "path": {
+        "darwin-arm64": [
+          "."
+        ],
+        "linux-x86-64": [
+          "."
+        ],
+        "windows-x86-64": [
+          "."
+        ]
+      }
     }
   }
 }

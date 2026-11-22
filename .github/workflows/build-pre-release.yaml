@@ -111,11 +111,66 @@ jobs:
           name: wdi-simple
           path: _wdi/*.zip
 
+  # Logix Viewer, Open Logix's own program (apps/viewer): built on each
+  # platform's own runner (macOS for the .app bundles and their ad-hoc
+  # signature), by scripts/build-viewer.sh. Cached by its sources and the
+  # script, so it's built again only when they change and the core keeps
+  # its bytes from day to day.
+  build-viewer:
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - platform: darwin-arm64
+            runner: macos-latest
+          - platform: linux-x86-64
+            runner: ubuntu-22.04
+          - platform: windows-x86-64
+            runner: windows-2025
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v7
+
+      - name: Compute the cache key
+        id: key
+        run: |
+          hash="$("$(command -v python3 || command -v python)" -c 'import hashlib, subprocess; files = sorted(subprocess.check_output(["git", "ls-files", "apps/viewer", "scripts/build-viewer.sh"], text=True).split()); h = hashlib.sha256(); [h.update(f.encode() + open(f, "rb").read()) for f in files]; print(h.hexdigest()[:32])')"
+          echo "key=logix-viewer-${{ matrix.platform }}-$hash" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the built package
+        id: cache
+        uses: actions/cache@v6
+        with:
+          path: _viewer
+          key: ${{ steps.key.outputs.key }}
+
+      # What wry and tao need to build on Linux: WebKitGTK and GTK.
+      - name: Install the Linux build libraries
+        if: steps.cache.outputs.cache-hit != 'true' && matrix.platform == 'linux-x86-64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libxdo-dev
+
+      - name: Build Logix Viewer
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: scripts/build-viewer.sh ${{ matrix.platform }} _viewer
+
+      - name: Upload the package
+        uses: actions/upload-artifact@v7
+        with:
+          if-no-files-found: error
+          name: logix-viewer-${{ matrix.platform }}
+          path: _viewer/*.tgz
+
   # One job per platform. Packing needs no platform of its own: the files
   # are only downloaded, unpacked and packed again (and wdi-simple, built
   # above, put in the Windows downloads first).
   build:
-    needs: [prepare, build-wdi-simple]
+    needs: [prepare, build-wdi-simple, build-viewer]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -139,6 +194,12 @@ jobs:
         with:
           name: wdi-simple
           path: ${{ runner.temp }}/work/downloads/windows-x86-64
+
+      - name: Get Logix Viewer
+        uses: actions/download-artifact@v8
+        with:
+          name: logix-viewer-${{ matrix.platform }}
+          path: ${{ runner.temp }}/work/downloads/${{ matrix.platform }}
 
       - name: Build logix-core for ${{ matrix.platform }}
         env:
