@@ -1,0 +1,8 @@
+{
+  "$comment": "One app per kind of page Logix Engine shows (the page manifest's kind). Each is the same logix-viewer program with its own name, icon and identity, so each has its own Dock icon. Adding a kind: an entry here and its icon (icons/<icon>.svg, then icons/make-icons.py). viewer is the generic app, for kinds without their own yet. slot: how many steps in from the screen's corner the app's first window opens (logix-viewer --slot), so two apps' first windows don't hide each other.",
+  "apps": [
+    { "kind": "waveforms", "name": "Logix Waveforms", "id": "org.openlogix.logix-viewer.waveforms", "icon": "waveforms", "slot": 0 },
+    { "kind": "diagram", "name": "Logix Diagrams", "id": "org.openlogix.logix-viewer.diagram", "icon": "diagram", "slot": 1 },
+    { "kind": "viewer", "name": "Logix Viewer", "id": "org.openlogix.logix-viewer.viewer", "icon": "viewer", "slot": 2 }
+  ]
+}
