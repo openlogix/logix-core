@@ -11,8 +11,8 @@
 //! drops. The app quits when its last window closes.
 //!
 //! Pages get `window.logixHost` (`host.js`): the Save dialog, writing the
-//! files the engine declared for the page (its view), and opening source
-//! files and links.
+//! files the engine declared for the page (its view), showing a source
+//! place in a note, and opening https links.
 
 mod protocol;
 
@@ -594,7 +594,7 @@ fn write_atomically(path: &Path, bytes: &[u8]) -> Result<(), String> {
         .map_err(|e| format!("can't save {}: {e}", path.display()))
 }
 
-/// Opens a file or link with the system's default app.
+/// Opens a link with the system's default app.
 fn open_with_system(what: &std::ffi::OsStr) -> Result<(), String> {
     let mut cmd = if cfg!(target_os = "macos") {
         std::process::Command::new("open")
