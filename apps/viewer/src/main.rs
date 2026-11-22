@@ -19,7 +19,7 @@ mod protocol;
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::io::{BufRead, BufReader, Write};
-use std::path::{Component, Path, PathBuf};
+use std::path::{Path, PathBuf};
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
 
@@ -64,7 +64,6 @@ struct PageWindow {
     webview: WebView,
     page: PathBuf,
     declared: BTreeMap<String, PathBuf>,
-    source_folder: Option<PathBuf>,
     loads: u64,
 }
 
@@ -140,7 +139,9 @@ fn main() {
                         page,
                         title,
                         declared,
-                        source_folder,
+                        // openSource only shows the place (host.js), so the
+                        // folder isn't needed.
+                        source_folder: _,
                     } => {
                         if !page.is_file() {
                             Reply::problem(
@@ -169,7 +170,6 @@ fn main() {
                                             webview,
                                             page,
                                             declared,
-                                            source_folder,
                                             loads: 0,
                                         },
                                     );
@@ -184,7 +184,6 @@ fn main() {
                             match windows.values_mut().find(|w| w.page == page) {
                                 Some(w) => {
                                     w.declared = declared;
-                                    w.source_folder = source_folder;
                                     if !title.is_empty() {
                                         w.window.set_title(&title);
                                     }
@@ -572,14 +571,6 @@ fn host_call(w: &PageWindow, body: &str) -> Result<(), String> {
                 Some(path) => std::fs::write(&path, bytes)
                     .map_err(|e| format!("can't save {}: {e}", path.display())),
                 None => Ok(()),
-            }
-        }
-        Some("openSource") => {
-            let file = PathBuf::from(text("file"));
-            let inside = file.components().all(|c| matches!(c, Component::Normal(_)));
-            match (&w.source_folder, inside) {
-                (Some(folder), true) => open_with_system(folder.join(file).as_os_str()),
-                _ => Err(format!("can't open the source file {}", file.display())),
             }
         }
         Some("openUrl") => {

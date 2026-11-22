@@ -229,6 +229,11 @@ icon. Its source is this repo's `apps/viewer/` (Rust: tao, wry, muda, rfd).
 4. **Icons:** `apps/viewer/icons/*.svg`, variants of Logix Engine's icon,
    made into the committed `.icns`, `.ico` and `.png` by
    `icons/make-icons.py` on a Mac.
+5. **Source lines:** a page's `openSource(file, line)` shows the place,
+   such as "main_tb.v, line 12", in a small note at the bottom of the
+   window (`src/host.js`) and opens nothing: Logix Viewer has no editor,
+   and the system's default app for a `.v` file is rarely one (the user's
+   decision, 2026-11-22). Hosts with an editor, such as Logix IDE, open it.
 
 ### openXC7
 

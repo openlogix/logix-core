@@ -43,7 +43,8 @@ pub enum Request {
         /// Files the page may write, by id, such as `view`.
         #[serde(default)]
         declared: BTreeMap<String, PathBuf>,
-        /// Where the page's source files are, for `openSource`.
+        /// Where the page's source files are. Accepted, not used: Logix
+        /// Viewer's `openSource` shows the place and opens nothing.
         #[serde(default)]
         source_folder: Option<PathBuf>,
     },
