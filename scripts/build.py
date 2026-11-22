@@ -71,6 +71,15 @@ REQUIRED = {
     },
 }
 
+# Logix Viewer's programs differ by platform: one .app per kind of page on
+# macOS, one program elsewhere (apps/viewer/bundle.py).
+REQUIRED_BY_PLATFORM = {
+    "darwin-arm64": {"logix-viewer": ["apps.json", "Logix Waveforms.app/Contents/MacOS/logix-viewer",
+                                      "Logix Diagrams.app/Contents/MacOS/logix-viewer"]},
+    "linux-x86-64": {"logix-viewer": ["apps.json", "logix-viewer"]},
+    "windows-x86-64": {"logix-viewer": ["apps.json", "logix-viewer.exe"]},
+}
+
 NOTE = (
     "logix-core is meant only for Logix Engine, which downloads it and runs its tools. "
     "It isn't for use on its own, and its content and layout may change at any time."
@@ -109,9 +118,10 @@ def download(comp: dict, platform: str, dest: Path) -> Path:
     dest.mkdir(parents=True, exist_ok=True)
     if "build" in comp:
         # Built from source, not downloaded: the workflow's build job for it
-        # (such as build-wdi-simple) puts the file here first.
+        # (build-wdi-simple, build-viewer) puts the file here first.
+        script = "build-viewer.sh" if "local" in comp["build"] else "build-wdi-simple.sh"
         sys.exit(f"{name}: built by logix-core from source, not downloaded; "
-                 f"build it first (scripts/build-wdi-simple.sh) into {dest}")
+                 f"build it first (scripts/{script}) into {dest}")
     if "github" in comp:
         g = comp["github"]
         run(["gh", "release", "download", g["release"], "--repo", g["repo"],
@@ -155,7 +165,8 @@ def core_relative(component: str, path: str) -> str:
 
 def check_required(core: Path, platform: str) -> None:
     kind = "windows" if platform.startswith("windows") else "unix"
-    missing = [f"{c}/{p}" for c, paths in REQUIRED[kind].items() for p in paths
+    required = {**REQUIRED[kind], **REQUIRED_BY_PLATFORM.get(platform, {})}
+    missing = [f"{c}/{p}" for c, paths in required.items() for p in paths
                if not (core / c / p).exists()]
     if missing:
         sys.exit("Missing in logix-core: " + ", ".join(missing))
@@ -225,8 +236,12 @@ def main() -> None:
             # Built by logix-core from this upstream source, unmodified,
             # since upstream publishes no build of it.
             b = comp["build"]
-            source.update({"repo": b["repo"], "tag": b["tag"], "commit": b["commit"],
-                           "built": "by logix-core from this source, unmodified"})
+            if "local" in b:
+                # Open Logix's own program, from this repo.
+                source.update({"built": f"by logix-core from its own {b['local']}"})
+            else:
+                source.update({"repo": b["repo"], "tag": b["tag"], "commit": b["commit"],
+                               "built": "by logix-core from this source, unmodified"})
         elif "github" in comp:
             source["repo"] = comp["github"]["repo"]
             source["release"] = comp["github"]["release"]

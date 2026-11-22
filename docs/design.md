@@ -25,7 +25,9 @@ core is the dependency updates discussion's subject, not this document's.
   upstream. Logix builds none of the tools, openXC7 included, with one
   exception: **a tool upstream publishes no build of is built here** from
   its pinned upstream source, unmodified (the user's rule, 2026-11-13).
-  Today that's only `wdi-simple`.
+  Today that's only `wdi-simple`. Open Logix's own small programs the
+  engine runs are built here too, from this repo (the user's decision,
+  2026-11-22): today Logix Viewer, `apps/viewer/`.
 - **The suite whole,** not trimmed to the programs the engine runs.
 - **How to run each tool** (the folders for `PATH`, variables) lives in
   `logix-core.json`, per tool, not in the engine; Apio hard-wires it in its
@@ -83,6 +85,7 @@ version uses.
 | Program the board | `openFPGALoader`, `iceprog`, `dfu-util`, `icesprog` | `oss-cad-suite/` |
 | Live errors in Logix IDE | `verible-verilog-ls` | `verible/` |
 | Windows drivers (Milestone 3) | `wdi-simple` (libwdi), run by Logix Engine | `wdi-simple/` (Windows only) |
+| Show pages in windows (Milestone 6) | Logix Viewer: `Logix Waveforms.app`, `Logix Diagrams.app` and `Logix Viewer.app` on macOS, `logix-viewer` elsewhere, with `apps.json` | `logix-viewer/` |
 
 The engine scans USB with its own libusb, built into the engine. Everything
 else in the suite (such as GHDL and formal verification tools) is shipped
@@ -205,6 +208,27 @@ on Windows). libwdi publishes Zadig built, but not `wdi-simple`, so:
    engines download it again once.
 5. **Moving to a new libwdi release:** change the tag and commit (and the
    WDK pin, if libwdi asks for another one) in one pull request.
+
+### Logix Viewer
+
+Open Logix's own program, not an upstream tool (logix-engine's
+`docs/requirements.md`, Logix Viewer): it shows the engine's pages in
+windows of their own, one app per kind of page, each with its own name and
+icon. Its source is this repo's `apps/viewer/` (Rust: tao, wry, muda, rfd).
+
+1. **Built in the workflow** (`build-viewer`, on each platform's own runner:
+   macOS for the `.app` bundles and their ad-hoc signature, Ubuntu 22.04
+   with WebKitGTK and GTK, Windows), by `scripts/build-viewer.sh`: a release
+   build with paths remapped, then `apps/viewer/bundle.py`, packed as a
+   reproducible `.tgz` (a zip would lose the programs' executable bit),
+   which the package build unpacks like a download.
+2. **Stable bytes:** cached by its sources and the script, as `wdi-simple`
+   is, so it's built again only when they change.
+3. **No signing of its own,** as for every program here: the engine
+   downloads the package, so nothing is quarantined.
+4. **Icons:** `apps/viewer/icons/*.svg`, variants of Logix Engine's icon,
+   made into the committed `.icns`, `.ico` and `.png` by
+   `icons/make-icons.py` on a Mac.
 
 ### openXC7
 
