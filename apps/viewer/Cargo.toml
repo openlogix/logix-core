@@ -1,0 +1,25 @@
+[package]
+name = "logix-viewer"
+# Not used for releases: logix-core's release date is the version.
+version = "0.0.0"
+edition = "2024"
+description = "Shows Logix Engine's pages (waveforms, diagrams) in windows of their own. Meant only for Logix Engine."
+license = "MIT OR Apache-2.0"
+publish = false
+
+[dependencies]
+tao = "0.37.2"
+wry = "0.57.1"
+muda = "0.20.0"
+rfd = "0.16.1"
+interprocess = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+dirs = "6"
+
+[dev-dependencies]
+tempfile = "3"
+
+[profile.release]
+strip = true
