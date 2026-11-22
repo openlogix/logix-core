@@ -39,10 +39,4 @@
     openSource: (file, line) => showPlace(file, line),
     openUrl: (url) => post({ cmd: "openUrl", url }),
   };
-  // Today's pages call these names; they map onto logixHost.
-  window.logixWaveSaveView = (view) =>
-    window.logixHost.writeDeclared("view", JSON.stringify(view, null, 2) + "\n");
-  window.logixWaveSaveFile = (name, mime, data) => window.logixHost.saveAs(name, mime, data);
-  window.logixWaveOpenSource = (file, line) => window.logixHost.openSource(file, line);
-  window.logixDiagramOpenSource = (file, line) => window.logixHost.openSource(file, line);
 })();
