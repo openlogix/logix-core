@@ -7,7 +7,7 @@
 
 [![License: MIT or Apache 2.0](https://img.shields.io/badge/License-MIT%20or%20Apache%202.0-blue)](#license)
 
-<img src="https://www.openlogix.org/brand/readme/macos.svg" height="40" alt="macOS (Apple Silicon)" title="macOS (Apple Silicon)"> <img src="https://www.openlogix.org/brand/readme/windows.svg" height="40" alt="Windows (x64)" title="Windows (x64)">
+<img src="https://www.openlogix.org/brand/readme/macos.svg" height="40" alt="macOS (Apple Silicon)" title="macOS (Apple Silicon)"> <img src="https://www.openlogix.org/brand/readme/windows.svg" height="40" alt="Windows (x64)" title="Windows (x64)"> <img src="https://www.openlogix.org/brand/readme/linux.svg" height="40" alt="Linux (x64)" title="Linux (x64)">
 
 [![core-build](https://img.shields.io/github/actions/workflow/status/openlogix/logix-core/build-pre-release.yaml?branch=main&label=core-build)](https://github.com/openlogix/logix-core/actions/workflows/build-pre-release.yaml)
 
@@ -18,8 +18,9 @@
 downloads: one `.tgz` per platform, published here as dated pre-releases.
 It isn't an Open Logix product and has no product page.
 
-Inside each package, every tool is its upstream release, unchanged, in a
-folder of its own:
+Inside each package, every tool is in a folder of its own. Each is its
+upstream release, unchanged, except `wdi-simple/`, built here from its
+upstream source, and `logix-viewer/`, Open Logix's own program:
 
 | Folder | Upstream | Platforms |
 | --- | --- | --- |
@@ -28,6 +29,7 @@ folder of its own:
 | `verible/` | [CHIPS Alliance Verible](https://github.com/chipsalliance/verible): the Verilog formatter and language server | macOS (Apple Silicon), Linux x64, Windows x64 |
 | `elkjs/` | [ELK for JavaScript](https://github.com/kieler/elkjs) (the Eclipse Layout Kernel), which lays out Logix Engine's design diagrams; the engine runs it itself | macOS (Apple Silicon), Linux x64, Windows x64 |
 | `wdi-simple/` | [libwdi](https://github.com/pbatard/libwdi)'s `wdi-simple`, which installs the WinUSB driver some boards need on Windows; Logix Engine runs it. libwdi publishes no build of it, so it's built here from libwdi's source, unmodified | Windows x64 |
+| `logix-viewer/` | Open Logix's own Logix Viewer (this repo's `apps/viewer/`), the windows Logix Engine shows its pages in, such as waveforms and diagrams | macOS (Apple Silicon), Linux x64, Windows x64 |
 
 `logix-core.json`, at the package's top, lists each folder's upstream file,
 version and SHA-256, how Logix Engine runs it, and the FPGAs the tools can
@@ -43,7 +45,7 @@ by pull request. [`scripts/build.py`](scripts/build.py) downloads the pinned
 files, unpacks each into its folder unchanged, writes `logix-core.json` and
 packs a reproducible `.tgz`, so the same pins always give the same SHA-256.
 The [build workflow](.github/workflows/build-pre-release.yaml) runs it for
-each platform and publishes the day's pre-release, on every change and daily; the 5 newest pre-releases are kept. [`docs/design.md`](docs/design.md)
+each platform and publishes the day's pre-release, on every change and daily. Old pre-releases are deleted by the shared policy: one stays while a remote config names it, or while it's among the 5 newest. [`docs/design.md`](docs/design.md)
 has the reasons and the processes.
 
 ## License

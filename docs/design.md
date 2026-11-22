@@ -32,10 +32,10 @@ core is the dependency updates discussion's subject, not this document's.
 - **How to run each tool** (the folders for `PATH`, variables) lives in
   `logix-core.json`, per tool, not in the engine; Apio hard-wires it in its
   `config.jsonc`.
-- **Each engine release pins one `logix-core` and one `logix-catalog`,** as
-  Apio pins its packages. Newer ones can reach installed engines without an
-  engine release through the engine's remote config, as Apio's remote
-  config does (designed, not implemented yet).
+- **The engine's remote config names one `logix-core` and one
+  `logix-catalog`** per channel, as Apio's remote config names its
+  packages. Engines have no built-in pins, so a new core reaches installed
+  engines without an engine release (built 2026-11-12).
 - **Windows drivers** (decided 2026-11-13): libwdi's `wdi-simple`, run by
   Logix Engine (drivers are the engine's job), in the Windows package only,
   as `wdi-simple/` (the user's decision, Milestone 3's driver phase: built
@@ -63,7 +63,7 @@ and variables for them.
 | `oss-cad-suite`, added | four generated part lists, `<ARCH>-PARTS-INDEX.json` (iCE40, ECP5, Gowin, MachXO2) | Apio's `fpgas_definitions.py` | yes | yes | yes | not used: Logix Catalog's FPGA files |
 | `openxc7` | nextpnr-xilinx, `fasm2frames`, `xc7frames2bit`, the Project X-Ray database, the chip databases | `cavearr/toolchain-openxc7-releases`, release 2026-11-05 | `.tgz` (124 MB) | `.tgz` | `.tgz` | `openxc7/` |
 | `verible` | the Verible tools | chipsalliance `verible`, release v0.0-4294-gc1d8f5e8 | `.tar.gz` (8 MB) | static `.tar.gz` | `.zip` | `verible/` |
-| `drivers` | `zadig.exe` (+ `zadig.ini`), `serial_install.exe`, `ftdi_eeprom.exe` | committed as files in `fpgawars/tools-drivers` | none | none | yes | Milestone 3 |
+| `drivers` | `zadig.exe` (+ `zadig.ini`), `serial_install.exe`, `ftdi_eeprom.exe` | committed as files in `fpgawars/tools-drivers` | none | none | yes | `wdi-simple/` |
 | `graphviz` | Graphviz's `dot` | Graphviz 12.1.2, Windows build | none | none | yes | not used: Logix Engine lays out and draws its diagrams itself, with `elkjs/` |
 
 Apio's tool packages are rebuilt every day, whether or not anything
@@ -74,18 +74,18 @@ version uses.
 
 | Job | Programs | Folder |
 | --- | --- | --- |
-| Lint | `verilator` | `oss-cad-suite/` |
+| Lint | `verilator_bin` | `oss-cad-suite/` |
 | Build, iCE40 | `yosys`, `nextpnr-ice40`, `icepack` | `oss-cad-suite/` |
 | Build, ECP5 | `yosys`, `nextpnr-ecp5`, `ecppack` | `oss-cad-suite/` |
 | Build, Gowin (GW1N, GW2A, GW5A) | `yosys`, `nextpnr-himbaechel`, `gowin_pack` (Apycula, Python) | `oss-cad-suite/` |
 | Build, Xilinx 7-series | `yosys`, `nextpnr-xilinx`, `fasm2frames` (Python), `xc7frames2bit`, the Project X-Ray database | `oss-cad-suite/` + `openxc7/` |
-| Test and simulate | `iverilog`, `vvp`, `gtkwave` | `oss-cad-suite/` |
+| Test and simulate | `iverilog`, `vvp` (the waveforms show in Logix Viewer, below) | `oss-cad-suite/` |
 | Format | `verible-verilog-format` | `verible/` |
 | Diagram | `yosys`, then ELK's layout (`elk.bundled.js`), which the engine runs itself | `oss-cad-suite/` + `elkjs/` |
 | Program the board | `openFPGALoader`, `iceprog`, `dfu-util`, `icesprog` | `oss-cad-suite/` |
 | Live errors in Logix IDE | `verible-verilog-ls` | `verible/` |
-| Windows drivers (Milestone 3) | `wdi-simple` (libwdi), run by Logix Engine | `wdi-simple/` (Windows only) |
-| Show pages in windows (Milestone 6) | Logix Viewer: `Logix Waveforms.app`, `Logix Diagrams.app` and `Logix Viewer.app` on macOS, `logix-viewer` elsewhere, with `apps.json` | `logix-viewer/` |
+| Windows drivers | `wdi-simple` (libwdi), run by Logix Engine | `wdi-simple/` (Windows only) |
+| Show pages in windows | Logix Viewer: `Logix Waveforms.app`, `Logix Diagrams.app` and `Logix Viewer.app` on macOS, `logix-viewer` elsewhere, with `apps.json` | `logix-viewer/` |
 
 The engine scans USB with its own libusb, built into the engine. Everything
 else in the suite (such as GHDL and formal verification tools) is shipped
@@ -96,12 +96,15 @@ but unused today.
 1. **Pin by pull request:** each tool's upstream version is in
    [`pins.json`](../pins.json), changed by a pull request, never by a daily
    job.
-2. **One `.tgz` per platform,** every tool an upstream folder in it:
-   `oss-cad-suite/`, `openxc7/`, `verible/` and `elkjs/`.
+2. **One `.tgz` per platform,** every tool a folder in it: the upstream
+   `oss-cad-suite/`, `openxc7/`, `verible/` and `elkjs/`, `wdi-simple/` on
+   Windows (built here, see wdi-simple) and Open Logix's own
+   `logix-viewer/` (see Logix Viewer).
    The workflow builds it into the day's pre-release, on every change and
-   daily (so breakage from GitHub's runners or upstream shows up), and keeps
-   the 5 newest pre-releases, as every Open Logix pre-release build does.
-   An engine release that ships pins a stable release, which is never
+   daily (so breakage from GitHub's runners or upstream shows up). Old
+   pre-releases are deleted by the shared policy: one stays while a remote
+   config on `main` names it, or while it's among the 5 newest. The
+   engine's prod remote config names only stable releases, which are never
    deleted.
 3. **Reproducible:** fixed file order, times and owners, so the same pins
    give the same bytes and the same SHA-256, and an engine can tell an
@@ -123,12 +126,14 @@ but unused today.
    repo, which is to move to the openXC7 project and, with no date set, into
    the YosysHQ suite. Logix takes its release like the others and takes no
    responsibility for the build.
-7. **The engine's manifest** lists, per platform, the address of
-   `logix-core` in a release here and its size and SHA-256, and the same for
-   `logix-catalog`. How to run each tool comes from `logix-core.json`.
-8. **Tested before use:** an engine pins a core only after its tests pass
-   with it on each platform's own runner (a build with each toolchain, a
-   test, a format, a diagram).
+7. **The engine's remote config** (`remote-config/logix-engine/<version>/`
+   in the engine's repo, a config file per channel) names the release and
+   file of `logix-core` here, and of `logix-catalog`; the engine checks each
+   download against the release's `SHA256SUMS`. How to run each tool comes
+   from `logix-core.json`.
+8. **Tested before use:** a remote config names a core only after the
+   engine's tests pass with it on each platform's own runner (a build with
+   each toolchain, a test, a format, a diagram).
 9. **The engine unpacks one archive type itself** (`.tgz` on every
    platform); nothing is installed.
 
@@ -163,19 +168,16 @@ core is built on Linux:
 1. A pull request here changes the pinned version.
 2. The workflow builds `logix-core` for all three platforms into the next
    dated pre-release, with its SHA-256.
-3. An engine pull request points the manifest at it; the engine's tests
-   build, test, format and draw with it.
-4. Merged, it's in the next engine pre-release.
-5. Later, with remote updates (designed, not implemented yet), engines
-   already installed get it without an engine release: a pull request to
-   the engine's remote config names it (pre-releases are allowed during
-   development), and the engine's tests run with it before it merges.
+3. A pull request to the engine's remote config names it (the dev
+   channel's config may name a pre-release, the prod one only a stable
+   release); the engine's tests build, test, format and draw with it.
+4. Merged, engines on that channel get it without an engine release.
 
 ### Adding a platform
 
 1. `pins.json` adds the platform's upstream files and run folders.
-2. The engine's manifest adds the platform's entry, and its tests get that
-   platform's runner.
+2. The engine's remote config checks gain the platform, and the engine's
+   tests get that platform's runner.
 
 ### A broken upstream release
 
@@ -251,8 +253,9 @@ icon. Its source is this repo's `apps/viewer/` (Rust: tao, wry, muda, rfd).
   copy, so this only affects rebuilding old cores).
 - [ ] The licenses of each tool, and what redistributing them requires
   (notices, source links).
-- [ ] Whether the Windows suite has everything the engine runs, including a
-  working `gowin_pack` and Python.
+- [x] Whether the Windows suite has everything the engine runs, including a
+  working `gowin_pack` and Python: yes, since the Windows promotion
+  (2026-11-16; openXC7 2026-11-15 finds the suite's Python, apio#1194).
 - [ ] Whether the suite's `nextpnr-himbaechel` and the openXC7 build need the
   same YosysHQ release, as Apio asserts.
 

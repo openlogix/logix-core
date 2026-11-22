@@ -5,8 +5,8 @@
 #
 # Runs on every push to main, daily and manually, like every Open Logix
 # pre-release build. Old pre-releases are deleted by the shared policy;
-# an engine release that ships pins a stable release (pre-release
-# unticked), which is never deleted.
+# the engine's prod remote config names only stable releases (pre-release
+# unticked), which are never deleted.
 #
 # The shared parts are Open Logix actions in openlogix/.github (tested
 # there): start-pre-release, read-build-info and publish-pre-release, which
@@ -155,6 +155,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libxdo-dev
 
+      # Its tests, format and lint (warnings are errors), when its sources
+      # changed.
+      - name: Check Logix Viewer
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: apps/viewer
+        run: |
+          cargo fmt --check
+          cargo clippy --locked --all-targets -- -D warnings
+          cargo test --locked
+
       - name: Build Logix Viewer
         if: steps.cache.outputs.cache-hit != 'true'
         run: scripts/build-viewer.sh ${{ matrix.platform }} _viewer
@@ -244,7 +254,7 @@ jobs:
       - name: Write the release content
         run: |
           cat > CONTENT.md <<EOF
-          Each package holds the pinned upstream releases, unchanged, one folder each (see \`logix-core.json\` inside, and [pins.json](https://github.com/${REPO}/blob/${REPO_COMMIT}/pins.json)). The Windows package also holds libwdi's wdi-simple, which upstream publishes no build of: it's built here from the pinned libwdi source, unmodified.
+          Each package holds the pinned upstream releases, unchanged, one folder each (see \`logix-core.json\` inside, and [pins.json](https://github.com/${REPO}/blob/${REPO_COMMIT}/pins.json)). The Windows package also holds libwdi's wdi-simple, which upstream publishes no build of: it's built here from the pinned libwdi source, unmodified. Every package also holds logix-viewer, Open Logix's own Logix Viewer, built here from this repo's apps/viewer.
           EOF
 
       - name: Publish the pre-release
@@ -253,7 +263,7 @@ jobs:
           title: "logix-core: The FPGA tools Logix Engine downloads and runs."
           engine-note: core
           content-file: CONTENT.md
-          about-bullets: An engine release that ships pins a stable release, which is never deleted.
+          about-bullets: The engine's prod remote config names only stable releases, which are never deleted.
           files: |
             _artifacts/logix-core-darwin-arm64-${{ env.PACKAGE_TAG }}.tgz
             _artifacts/logix-core-linux-x86-64-${{ env.PACKAGE_TAG }}.tgz
