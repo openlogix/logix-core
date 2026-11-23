@@ -10,7 +10,10 @@ publish = false
 [dependencies]
 tao = "0.37.2"
 wry = "0.57.1"
-muda = "0.20.0"
+# No libxdo: it serves only predefined menu items on Linux, where the
+# viewer shows no menu, and most desktops lack the library (the viewer
+# didn't start on a Linux machine without it, 2026-11-23).
+muda = { version = "0.20.0", default-features = false, features = ["gtk3"] }
 rfd = "0.16.1"
 interprocess = "2"
 serde = { version = "1", features = ["derive"] }
