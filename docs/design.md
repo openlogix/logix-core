@@ -224,6 +224,10 @@ icon. Its source is this repo's `apps/viewer/` (Rust: tao, wry, muda, rfd).
    build with paths remapped, then `apps/viewer/bundle.py`, packed as a
    reproducible `.tgz` (a zip would lose the programs' executable bit),
    which the package build unpacks like a download.
+   On Linux it needs only WebKitGTK and GTK, which desktops have: muda's
+   `libxdo` feature is off (it serves only predefined menu items, and the
+   viewer has no menu on Linux), and the runner doesn't install libxdo, so
+   a build that links it fails (found in the Linux test, 2026-11-23).
 2. **Stable bytes:** cached by its sources and the script, as `wdi-simple`
    is, so it's built again only when they change.
 3. **No signing of its own,** as for every program here: the engine

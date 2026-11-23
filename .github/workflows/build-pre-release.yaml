@@ -148,12 +148,14 @@ jobs:
           path: _viewer
           key: ${{ steps.key.outputs.key }}
 
-      # What wry and tao need to build on Linux: WebKitGTK and GTK.
+      # What wry and tao need to build on Linux: WebKitGTK and GTK. Not
+      # libxdo: the viewer must not need it (apps/viewer/Cargo.toml), and
+      # without its -dev package here, a build that links it fails.
       - name: Install the Linux build libraries
         if: steps.cache.outputs.cache-hit != 'true' && matrix.platform == 'linux-x86-64'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libxdo-dev
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev
 
       # Its tests, format and lint (warnings are errors), when its sources
       # changed.
