@@ -44,7 +44,7 @@ pub enum Request {
         #[serde(default)]
         declared: BTreeMap<String, PathBuf>,
         /// Where the page's source files are. Accepted, not used: Logix
-        /// Viewer's `openSource` shows the place and opens nothing.
+        /// Viewer has no editor and offers no `openSource`.
         #[serde(default)]
         source_folder: Option<PathBuf>,
     },

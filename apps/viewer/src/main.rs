@@ -11,8 +11,8 @@
 //! drops. The app quits when its last window closes.
 //!
 //! Pages get `window.logixHost` (`host.js`): the Save dialog, writing the
-//! files the engine declared for the page (its view), showing a source
-//! place in a note, and opening https links.
+//! files the engine declared for the page (its view), and opening https
+//! links. No openSource: Logix Viewer has no editor.
 
 mod identity;
 mod protocol;
@@ -142,7 +142,7 @@ fn main() {
                         page,
                         title,
                         declared,
-                        // openSource only shows the place (host.js), so the
+                        // Logix Viewer opens no sources (host.js), so the
                         // folder isn't needed.
                         source_folder: _,
                     } => {
