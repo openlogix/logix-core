@@ -243,11 +243,15 @@ icon. Its source is this repo's `apps/viewer/` (Rust: tao, wry, muda, rfd).
    by that name in `~/.local/share/applications`, where docks find the
    icon. Without them GNOME showed a generic gear (the Linux test,
    2026-11-23).
-5. **Source lines:** a page's `openSource(file, line)` shows the place,
-   such as "main_tb.v, line 12", in a small note at the bottom of the
-   window (`src/host.js`) and opens nothing: Logix Viewer has no editor,
-   and the system's default app for a `.v` file is rarely one (the user's
-   decision, 2026-11-22). Hosts with an editor, such as Logix IDE, open it.
+5. **Source lines:** Logix Viewer opens no sources: it has no editor, and
+   the system's default app for a `.v` file is rarely one (the user's
+   decision, 2026-11-22). Its `window.logixHost` leaves `openSource` out of
+   `features` (`src/host.js`), so pages show a place, such as "Declared in
+   main_tb.v, line 12", only in their hover boxes and offer no double-click
+   to it; `openSource` itself does nothing, for older pages. Until
+   2026-11-23 it showed the place in a note, which only repeated the hover
+   box (the user's decision). Hosts with an editor, such as Logix IDE, list
+   it and open the place.
 
 ### openXC7
 
