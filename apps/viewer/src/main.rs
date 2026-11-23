@@ -14,6 +14,7 @@
 //! files the engine declared for the page (its view), showing a source
 //! place in a note, and opening https links.
 
+mod identity;
 mod protocol;
 
 use std::borrow::Cow;
@@ -97,6 +98,8 @@ fn main() {
         }
     };
     eprintln!("{name} is listening on {socket}.");
+    // Its name and icon outside macOS (identity.rs), before GTK starts.
+    let icon = identity::set_up(&name);
 
     let event_loop = EventLoopBuilder::<UserEvent>::with_user_event().build();
     let proxy = event_loop.create_proxy();
@@ -158,8 +161,16 @@ fn main() {
                             };
                             let newest = windows.values().next_back().map(|w| &w.window);
                             let placed = place(target, newest, size, slot);
-                            match new_window(target, &proxy, &pages, number, &page, &title, placed)
-                            {
+                            match new_window(
+                                target,
+                                &proxy,
+                                &pages,
+                                number,
+                                &page,
+                                &title,
+                                placed,
+                                icon.as_deref(),
+                            ) {
                                 Ok((window, webview)) => {
                                     by_id.insert(window.id(), number);
                                     window.set_focus();
@@ -465,6 +476,7 @@ fn page_url(number: u64, loads: u64) -> String {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn new_window(
     target: &EventLoopWindowTarget<UserEvent>,
     proxy: &EventLoopProxy<UserEvent>,
@@ -473,13 +485,27 @@ fn new_window(
     page: &Path,
     title: &str,
     (at, size): (LogicalPosition<f64>, LogicalSize<f64>),
+    icon: Option<&Path>,
 ) -> Result<(Window, WebView), String> {
     pages.lock().unwrap().insert(number, page.to_path_buf());
     let builder = WindowBuilder::new()
         .with_title(title)
         .with_inner_size(size)
         .with_position(at);
+    #[cfg(windows)]
+    let builder = {
+        use tao::platform::windows::IconExtWindows;
+        builder.with_window_icon(icon.and_then(|f| tao::window::Icon::from_path(f, None).ok()))
+    };
     let window = builder.build(target).map_err(|e| e.to_string())?;
+    #[cfg(target_os = "linux")]
+    if let Some(f) = icon {
+        use gtk::prelude::GtkWindowExt;
+        use tao::platform::unix::WindowExtUnix;
+        let _ = window.gtk_window().set_icon_from_file(f);
+    }
+    #[cfg(target_os = "macos")]
+    let _ = icon;
     let served = pages.clone();
     let ipc = proxy.clone();
     let builder = WebViewBuilder::new()

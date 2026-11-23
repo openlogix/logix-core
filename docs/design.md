@@ -235,6 +235,14 @@ icon. Its source is this repo's `apps/viewer/` (Rust: tao, wry, muda, rfd).
 4. **Icons:** `apps/viewer/icons/*.svg`, variants of Logix Engine's icon,
    made into the committed `.icns`, `.ico` and `.png` by
    `icons/make-icons.py` on a Mac.
+   On macOS each app bundle has its icon. On Linux and Windows the one
+   program learns its app from `apps.json` by the name it's started with
+   (`src/identity.rs`): it sets each window's icon, and on Linux it also
+   takes the app's ID as its program name, which GTK gives the window as
+   its app ID (Wayland) and class (X11), and writes a hidden desktop entry
+   by that name in `~/.local/share/applications`, where docks find the
+   icon. Without them GNOME showed a generic gear (the Linux test,
+   2026-11-23).
 5. **Source lines:** a page's `openSource(file, line)` shows the place,
    such as "main_tb.v, line 12", in a small note at the bottom of the
    window (`src/host.js`) and opens nothing: Logix Viewer has no editor,

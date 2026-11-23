@@ -21,6 +21,11 @@ serde_json = "1"
 base64 = "0.22"
 dirs = "6"
 
+# The window icon and the program's name on Linux (identity.rs): the same
+# GTK tao uses.
+[target.'cfg(target_os = "linux")'.dependencies]
+gtk = "0.18"
+
 [dev-dependencies]
 tempfile = "3"
 
