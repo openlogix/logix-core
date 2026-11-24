@@ -10,6 +10,12 @@
 //! its ID and writes a desktop entry by that name, hidden from menus. The
 //! window's own icon covers the rest. Without them, GNOME showed a generic
 //! gear (the user's Linux test, 2026-11-23).
+//!
+//! On Windows, the taskbar groups windows by their app's ID (the
+//! AppUserModelID), which is the program's path unless the program sets
+//! one. Every app is the same `logix-viewer.exe`, so the waveforms and the
+//! diagram shared one taskbar button, with the icon of whichever opened
+//! first (the user's Windows test, 2026-11-24): each app sets its own ID.
 
 // Parts serve only some systems; the tests run them all everywhere.
 #![cfg_attr(not(target_os = "linux"), allow(dead_code))]
@@ -110,10 +116,21 @@ pub fn set_up(name: &str) -> Option<PathBuf> {
     icon.is_file().then_some(icon)
 }
 
-/// Windows: the icon file for the windows.
+/// Windows: sets the process's app ID to the app's, before any window
+/// opens, so each app has its own taskbar button. Returns the icon file
+/// for the windows.
 #[cfg(windows)]
 pub fn set_up(name: &str) -> Option<PathBuf> {
     let (app, folder) = this_app(name)?;
+    let id: Vec<u16> = app.id.encode_utf16().chain([0]).collect();
+    // SAFETY: `id` is a NUL-terminated UTF-16 string that outlives the call,
+    // which copies it.
+    let result = unsafe {
+        windows_sys::Win32::UI::Shell::SetCurrentProcessExplicitAppUserModelID(id.as_ptr())
+    };
+    if result < 0 {
+        eprintln!("{name}: can't set its app ID {}: error {result:#x}", app.id);
+    }
     let icon = icon_file(&folder, &app);
     icon.is_file().then_some(icon)
 }
