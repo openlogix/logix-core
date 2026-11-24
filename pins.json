@@ -2,7 +2,7 @@
   "$comment": "What logix-core is made of: each tool's pinned upstream release (or, for a tool upstream publishes no build of, its pinned upstream source, which logix-core builds unmodified: build, with platforms naming the only platforms that have it): files, URL and run folders per platform (path: the PATH folders, relative to the component, the first holding its programs; ../ reaches another component; env: variables naming folders, relative to the component, per platform where needed), or one value for every platform (elkjs). Changed only by pull request (docs/design.md, Processes). scripts/build.py reads it. Boards aren't here: they're the logix-catalog package. The list of FPGAs the tools can build is generated from their databases (scripts/fpgas.py).",
   "components": {
     "oss-cad-suite": {
-      "description": "YosysHQ OSS CAD Suite: yosys, nextpnr, icestorm, Project Trellis, Apycula, Icarus Verilog, Verilator, GTKWave, openFPGALoader and more",
+      "description": "YosysHQ OSS CAD Suite: yosys, nextpnr, icestorm, Project Trellis, Apycula, Icarus Verilog, Verilator, openFPGALoader and more",
       "upstream": "https://github.com/YosysHQ/oss-cad-suite-build",
       "github": {
         "repo": "YosysHQ/oss-cad-suite-build",
