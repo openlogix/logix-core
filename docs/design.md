@@ -242,7 +242,11 @@ icon. Its source is this repo's `apps/viewer/` (Rust: tao, wry, muda, rfd).
    its app ID (Wayland) and class (X11), and writes a hidden desktop entry
    by that name in `~/.local/share/applications`, where docks find the
    icon. Without them GNOME showed a generic gear (the Linux test,
-   2026-11-23).
+   2026-11-23). On Windows it also sets the app's ID as the process's
+   AppUserModelID before any window opens, since the taskbar groups
+   windows by it, and by the program's path without one: the waveforms and
+   the diagram shared one button, with the icon of whichever opened first
+   (the Windows test, 2026-11-24).
 5. **Source lines:** Logix Viewer opens no sources: it has no editor, and
    the system's default app for a `.v` file is rarely one (the user's
    decision, 2026-11-22). Its `window.logixHost` leaves `openSource` out of

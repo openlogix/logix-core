@@ -26,6 +26,11 @@ dirs = "6"
 [target.'cfg(target_os = "linux")'.dependencies]
 gtk = "0.18"
 
+# Each app's own taskbar button on Windows (identity.rs): the version tao
+# and wry already use.
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_UI_Shell"] }
+
 [dev-dependencies]
 tempfile = "3"
 
